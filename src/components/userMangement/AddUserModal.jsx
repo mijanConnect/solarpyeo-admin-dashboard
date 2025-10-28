@@ -1,0 +1,183 @@
+import { Button, Input, Modal, Select, message } from "antd";
+import { useState } from "react";
+
+const { Option } = Select;
+
+const AddUserModal = ({ visible, onClose, onSave, isLoading }) => {
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+    role: "",
+  });
+
+  const handleSave = () => {
+    if (
+      !formData.name ||
+      !formData.email ||
+      !formData.password ||
+      !formData.confirmPassword ||
+      !formData.role
+    ) {
+      message.error("Please fill in all required fields");
+      return;
+    }
+
+    if (formData.password.length < 8) {
+      message.error("Password must be at least 8 characters");
+      return;
+    }
+
+    if (formData.password !== formData.confirmPassword) {
+      message.error("Passwords do not match!");
+      return;
+    }
+
+    onSave(formData);
+    setFormData({
+      name: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
+      role: "",
+    });
+  };
+
+  const handleCancel = () => {
+    setFormData({
+      name: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
+      role: "",
+    });
+    onClose();
+  };
+
+  return (
+    <Modal
+      title="Add New User"
+      open={visible}
+      onCancel={handleCancel}
+      footer={null}
+      width={500}
+      centered
+    >
+      <div className="mt-6 space-y-6">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            User Name
+          </label>
+          <Input
+            placeholder="Enter User name"
+            size="large"
+            value={formData.name}
+            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Email*
+          </label>
+          <Input
+            placeholder="Enter User email"
+            size="large"
+            type="email"
+            value={formData.email}
+            onChange={(e) =>
+              setFormData({ ...formData, email: e.target.value })
+            }
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Password
+          </label>
+          <Input.Password
+            placeholder="Enter Password"
+            size="large"
+            value={formData.password}
+            minLength={8}
+            onChange={(e) =>
+              setFormData({ ...formData, password: e.target.value })
+            }
+            status={
+              formData.password && formData.password.length < 8 ? "error" : ""
+            }
+          />
+          {formData.password && formData.password.length < 8 && (
+            <p className="text-red-500 text-xs mt-1">
+              Password must be at least 8 characters
+            </p>
+          )}
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Confirm Password
+          </label>
+          <Input.Password
+            placeholder="Re-enter Password"
+            size="large"
+            value={formData.confirmPassword}
+            onChange={(e) =>
+              setFormData({ ...formData, confirmPassword: e.target.value })
+            }
+            status={
+              formData.confirmPassword &&
+              formData.password !== formData.confirmPassword
+                ? "error"
+                : ""
+            }
+          />
+          {formData.confirmPassword &&
+            formData.password !== formData.confirmPassword && (
+              <p className="text-red-500 text-xs mt-1">
+                Passwords do not match
+              </p>
+            )}
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Assign Role*
+          </label>
+          <Select
+            placeholder="Assign Role"
+            size="large"
+            className="w-full"
+            value={formData.role}
+            onChange={(value) => setFormData({ ...formData, role: value })}
+          >
+            <Option value="MODERATOR">Moderator</Option>
+            <Option value="JUROR">Juror</Option>
+            <Option value="SITEFUND">Site Fund</Option>
+            <Option value="DOCUMENTS">Documents</Option>
+            <Option value="SUPER_ADMIN">Super Admin</Option>
+            <Option value="USER">User</Option>
+          </Select>
+        </div>
+
+        <div className="flex justify-end gap-3 mt-8">
+          <Button size="large" onClick={handleCancel} className="px-8">
+            Cancel
+          </Button>
+          <Button
+            type="primary"
+            size="large"
+            onClick={handleSave}
+            className="bg-red-500 hover:bg-red-600 border-red-500 hover:border-red-600 px-8"
+            loading={isLoading}
+          >
+            Save
+          </Button>
+        </div>
+      </div>
+    </Modal>
+  );
+};
+
+export default AddUserModal;
