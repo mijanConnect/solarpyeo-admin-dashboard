@@ -20,7 +20,12 @@ const Login = () => {
 
       if (response.success) {
         const token = response.data.accessToken;
+        const refreshToken = response.data.refreshToken;
+
         localStorage.setItem("token", token);
+        if (refreshToken) {
+          localStorage.setItem("refreshToken", refreshToken);
+        }
 
         if (response.data.accessToken) {
           navigate("/");
