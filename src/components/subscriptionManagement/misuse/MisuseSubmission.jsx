@@ -1,18 +1,29 @@
-import { Input, message, Modal, Select, Table } from "antd";
-import { useState } from "react";
+import React, { useState } from "react";
+import {
+  Table,
+  Button,
+  Input,
+  Select,
+  Tag,
+  Tooltip,
+  message,
+  Modal,
+} from "antd";
+import { FaFilePdf, FaEdit } from "react-icons/fa";
+import { MdGavel } from "react-icons/md";
+import { sampleData } from "./sampleData";
+import { TableColumns } from "./CulomsTable";
 import {
   AcceptModal,
   EditModal,
   JuryModal,
   PDFModal,
 } from "./GeneratePDFContent ";
-import { InitialTableColumns, InitialTableData } from "./InitialTableColumns";
-import { MisuseTableColumns, MisuseTableData } from "./MisuseTableColumns";
 
 const { Option } = Select;
 
-const SubmissionManagementCom = () => {
-  const [data, setData] = useState(() => InitialTableData());
+const MisuseSubmission = () => {
+  const [data, setData] = useState(sampleData);
   const [searchText, setSearchText] = useState("");
   const [submissionType, setSubmissionType] = useState("All");
   const [isPDFModalVisible, setIsPDFModalVisible] = useState(false);
@@ -21,17 +32,18 @@ const SubmissionManagementCom = () => {
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
   const [selectedRecord, setSelectedRecord] = useState(null);
 
-  // Filter data by search only. The dropdown selects which table/columns to use
-  // but does NOT filter rows by submission type.
+  // Filter data
   const filteredData = data.filter((item) => {
-    const q = searchText.trim().toLowerCase();
-    if (!q) return true;
-    return (
-      (item.initiatorName || "").toLowerCase().includes(q) ||
-      (item.email || "").toLowerCase().includes(q) ||
-      (item.caseType || "").toLowerCase().includes(q) ||
-      (item.submissionType || "").toLowerCase().includes(q)
-    );
+    const matchesSearch =
+      item.initiatorName.toLowerCase().includes(searchText.toLowerCase()) ||
+      item.email.toLowerCase().includes(searchText.toLowerCase()) ||
+      item.caseType.toLowerCase().includes(searchText.toLowerCase()) ||
+      item.submissionType.toLowerCase().includes(searchText.toLowerCase());
+
+    const matchesType =
+      submissionType === "All" || item.status === submissionType;
+
+    return matchesSearch && matchesType;
   });
 
   // Modal handlers
@@ -192,22 +204,14 @@ const SubmissionManagementCom = () => {
     },
   };
 
-  const initialColumns = InitialTableColumns(actionHandlers);
-  const misuseColumns = MisuseTableColumns(actionHandlers);
-
-  // pick columns set & data transform based on submissionType dropdown
-  const currentColumns =
-    submissionType === "Misuse" ? misuseColumns : initialColumns;
-  const currentData =
-    submissionType === "Misuse"
-      ? MisuseTableData(filteredData)
-      : InitialTableData(filteredData);
+  const columns = TableColumns(actionHandlers);
 
   return (
     <div className="">
       {/* Filters */}
-      <div className="mb-6 flex flex-wrap gap-4 items-center">
-        <div className="flex items-center justify-between w-full gap-2">
+      <div className="flex justify-between items-end bg-red-300 p-3 rounded-lg mb-4 mt-4">
+        <p className="text-[25px] font-semibold ml-1">Misuse Submissions</p>
+        <div className="flex gap-2">
           <Input
             placeholder="Search by name, email, case type, or submission type"
             value={searchText}
@@ -220,11 +224,12 @@ const SubmissionManagementCom = () => {
             onChange={setSubmissionType}
             style={{ width: 200, height: 40 }}
           >
-            <Option value="All">All Submission</Option>
-            <Option value="Initial">Initial Submission</Option>
-            <Option value="Misuse">Misuse Submission</Option>
-            <Option value="Appeal">Appeal Submission</Option>
-            <Option value="Respondent">Respondent Submission</Option>
+            <Option value="All">All Status</Option>
+            <Option value="Pending">Pending</Option>
+            <Option value="Under Jury Review">Under Jury Review</Option>
+            <Option value="Final Review">Final Review</Option>
+            <Option value="Rejected">Rejected</Option>
+            <Option value="Completed">Completed</Option>
           </Select>
         </div>
       </div>
@@ -234,11 +239,11 @@ const SubmissionManagementCom = () => {
         <div className="overflow-x-auto min-w-full p-0">
           <Table
             components={components}
-            columns={currentColumns}
-            dataSource={currentData}
+            columns={columns}
+            dataSource={filteredData}
             rowKey="id"
             pagination={{ pageSize: 10 }}
-            scroll={{ x: 1300 }}
+            scroll={{ x: 1300 }} // scroll value as fixed px
             className="custom-table"
           />
         </div>
@@ -275,4 +280,4 @@ const SubmissionManagementCom = () => {
   );
 };
 
-export default SubmissionManagementCom;
+export default MisuseSubmission;

@@ -1,21 +1,21 @@
-import { Menu, Modal, Upload, Button } from "antd";
-import { UploadOutlined } from "@ant-design/icons";
-import React, { useEffect, useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import {
+  MenuFoldOutlined,
+  MenuUnfoldOutlined,
+  UploadOutlined,
+} from "@ant-design/icons";
+import { Button, Menu, Modal, Upload } from "antd";
+import { useEffect, useState } from "react";
 import { IoIosLogOut } from "react-icons/io";
-import { MenuFoldOutlined, MenuUnfoldOutlined } from "@ant-design/icons";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
+import image4 from "../../assets/image4.png";
 import {
   Dashboard,
-  Sales,
-  People,
-  PromotionManagement,
-  Revenue,
-  SubscriptionManagement,
   loginCredentials,
+  Revenue,
   Settings,
+  SubscriptionManagement,
 } from "../../components/common/Svg";
-import image4 from "../../assets/image4.png";
 
 const Sidebar = ({ collapsed, setCollapsed }) => {
   const location = useLocation();
@@ -25,13 +25,21 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   const [logo, setLogo] = useState(image4); // state for logo
   const navigate = useNavigate();
-  const [sidebarWidth, setSidebarWidth] = useState(collapsed ? 80 : 310);
+  // Narrower default widths (expanded widths reduced)
+  const [sidebarWidth, setSidebarWidth] = useState(collapsed ? 72 : 260);
 
   useEffect(() => {
     const handleResize = () => {
-      if (window.innerWidth < 768) setSidebarWidth(collapsed ? 60 : 200);
-      else if (window.innerWidth < 1024) setSidebarWidth(collapsed ? 70 : 250);
-      else setSidebarWidth(collapsed ? 80 : 310);
+      if (window.innerWidth < 768) {
+        // mobile
+        setSidebarWidth(collapsed ? 56 : 180);
+      } else if (window.innerWidth < 1024) {
+        // tablet
+        setSidebarWidth(collapsed ? 64 : 220);
+      } else {
+        // desktop
+        setSidebarWidth(collapsed ? 72 : 260);
+      }
     };
 
     window.addEventListener("resize", handleResize);
@@ -101,9 +109,7 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
       key: "/submissionManagement",
       icon: renderIcon(SubscriptionManagement, "/submissionManagement"),
       label: (
-        <Link to="/submissionManagement">
-          {collapsed ? "" : "Submission"}
-        </Link>
+        <Link to="/submissionManagement">{collapsed ? "" : "Submission"}</Link>
       ),
     },
     {
@@ -167,9 +173,7 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
     {
       key: "/profile",
       icon: renderIcon(Settings, "/profile"),
-      label: (
-        <Link to="/profile">{collapsed ? "" : "Settings"}</Link>
-      ),
+      label: <Link to="/profile">{collapsed ? "" : "Settings"}</Link>,
     },
     // {
     //   key: "subMenuSetting",
@@ -234,20 +238,28 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
 
   return (
     <div
-      className="h-full flex flex-col bg-white border-r border-primary transition-all duration-300"
-    style={{ width: collapsed ? 80 : 320 }}
+      className="h-full flex flex-col bg-white transition-all duration-300 overflow-x-hidden min-w-0"
+      style={{ width: sidebarWidth }}
     >
       {/* Toggle Button */}
-      {/* <div
-        className="flex justify-end items-center p-2 cursor-pointer"
-        onClick={() => setCollapsed(!collapsed)}
+      <div
+        className={`flex ${
+          collapsed ? "justify-center" : "justify-end"
+        } items-center p-2`}
       >
-        {collapsed ? (
-          <MenuUnfoldOutlined style={{ fontSize: 20 }} />
-        ) : (
-          <MenuFoldOutlined style={{ fontSize: 20 }} />
-        )}
-      </div> */}
+        <button
+          type="button"
+          aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+          onClick={() => setCollapsed(!collapsed)}
+          className="p-2 rounded-md hover:bg-gray-100 transition-colors"
+        >
+          {collapsed ? (
+            <MenuUnfoldOutlined style={{ fontSize: 20 }} />
+          ) : (
+            <MenuFoldOutlined style={{ fontSize: 20 }} />
+          )}
+        </button>
+      </div>
 
       {/* Logo + Upload */}
       {!collapsed && (
@@ -264,7 +276,7 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
       )}
 
       {/* Menu */}
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 overflow-y-auto overflow-x-hidden">
         <Menu
           mode="inline"
           inlineCollapsed={collapsed}

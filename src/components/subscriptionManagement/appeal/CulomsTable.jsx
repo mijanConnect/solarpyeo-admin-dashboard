@@ -1,10 +1,13 @@
-import { Button, Tag, Tooltip } from "antd";
-import { sampleData as defaultSampleData, getStatusColor } from "./sampleData";
+import React from "react";
+import { Button, Tag, Tooltip, Modal, message } from "antd";
+import { FaFilePdf, FaEdit } from "react-icons/fa";
+import { MdGavel } from "react-icons/md";
+import { getStatusColor } from "./sampleData";
 // import { getStatusColor } from "./sampleData";
 // import { getStatusColor } from "./sampleData";
 // import { getStatusColor } from '../data/sampleData';
 
-export const InitialTableColumns = (actionHandlers) => {
+export const TableColumns = (actionHandlers) => {
   const {
     showPDFModal,
     showAcceptModal,
@@ -148,14 +151,4 @@ export const InitialTableColumns = (actionHandlers) => {
       ),
     },
   ];
-};
-
-// Optional: transform raw data into the shape expected by Initial table columns
-export const InitialTableData = (rawData = []) => {
-  // If caller didn't provide raw data, return module's default sample set.
-  const source = rawData && rawData.length ? rawData : defaultSampleData;
-  // Central place to adapt/normalize fields for the Initial table.
-  return source.map((item) => ({
-    ...item,
-  }));
 };

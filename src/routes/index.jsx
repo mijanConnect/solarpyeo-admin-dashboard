@@ -12,7 +12,6 @@ import TermsAndConditions from "../Pages/Dashboard/TermsAndCondition";
 import ChangePassword from "../Pages/Auth/ChangePassword";
 import Login from "../Pages/Auth/Login";
 import ForgotPassword from "../Pages/Auth/ForgotPassword";
-// import VerifyOtp from "../Pages/Auth/VerifyOtp";
 import ResetPassword from "../Pages/Auth/SetPassword";
 import NotFound from "../NotFound";
 import Notifications from "../Pages/Dashboard/Notifications";
@@ -51,7 +50,7 @@ import SignUp from "../Pages/Auth/SignUp";
 import OtpVerification from "../Pages/Auth/OtpVerification";
 import ShopInfo from "../Pages/Auth/ShopInfo";
 import TotalEarnings from "../components/TotalEarnings/TotalEarnings";
-import SubmissionManagementCom from "../components/subscriptionManagement/extra/SubmissionManagement";
+import SubmissionManagementCom from "../components/subscriptionManagement/SubmissionManagement";
 import PrivateRoute from "./ProtectedRoute";
 // import SalesRepsManagementTable from "../components/SalesRepsManagement/SalesRepsManagement";
 
@@ -218,10 +217,6 @@ const router = createBrowserRouter([
         path: "forgot-password",
         element: <ForgotPassword />,
       },
-      // {
-      //   path: "verify-otp",
-      //   element: <VerifyOtp />,
-      // },
       {
         path: "reset-success",
         element: <ResetSuccess />,

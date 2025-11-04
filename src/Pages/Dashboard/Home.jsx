@@ -101,7 +101,7 @@ const Home = () => {
   };
 
   return (
-    <div className="p-2 md:p-4 space-y-4 md:space-y-6">
+    <div className="">
       <div className="flex flex-col xl:flex-row gap-10 rounded-lg">
         {/* Pie Chart Section */}
         <div className="border border-primary rounded-lg xl:w-2/3">
@@ -197,7 +197,7 @@ const Home = () => {
       </div>
 
       {/* Order Table */}
-      <div>
+      <div className="mt-10">
         <OrderTable />
       </div>
     </div>

@@ -1,10 +1,13 @@
-import { Button, Tag, Tooltip } from "antd";
-import { sampleData as defaultSampleData, getStatusColor } from "./sampleData";
+import React from "react";
+import { Button, Tag, Tooltip, Modal, message } from "antd";
+import { FaFilePdf, FaEdit } from "react-icons/fa";
+import { MdGavel } from "react-icons/md";
+import { getStatusColor } from "./sampleData";
 // import { getStatusColor } from "./sampleData";
 // import { getStatusColor } from "./sampleData";
 // import { getStatusColor } from '../data/sampleData';
 
-export const MisuseTableColumns = (actionHandlers) => {
+export const TableColumns = (actionHandlers) => {
   const {
     showPDFModal,
     showAcceptModal,
@@ -35,9 +38,9 @@ export const MisuseTableColumns = (actionHandlers) => {
       width: 60,
     },
     {
-      title: "Measus Name",
-      dataIndex: "MeasusName",
-      key: "MeasusName",
+      title: "Initiator Name",
+      dataIndex: "initiatorName",
+      key: "initiatorName",
       align: "center",
     },
     {
@@ -148,13 +151,4 @@ export const MisuseTableColumns = (actionHandlers) => {
       ),
     },
   ];
-};
-
-// Optional: transform raw data into the shape expected by Misuse table columns
-export const MisuseTableData = (rawData = []) => {
-  const source = rawData && rawData.length ? rawData : defaultSampleData;
-  // Keep mapping centralised for misuse table variants
-  return source.map((item) => ({
-    ...item,
-  }));
 };
