@@ -1,6 +1,20 @@
 import React, { useState } from "react";
-import { Table, DatePicker, Select, Card, Row, Col, Statistic, Tag } from "antd";
-import { DollarOutlined, TrophyOutlined, UserOutlined, ShoppingCartOutlined } from "@ant-design/icons";
+import {
+  Table,
+  DatePicker,
+  Select,
+  Card,
+  Row,
+  Col,
+  Statistic,
+  Tag,
+} from "antd";
+import {
+  DollarOutlined,
+  TrophyOutlined,
+  UserOutlined,
+  ShoppingCartOutlined,
+} from "@ant-design/icons";
 import moment from "moment";
 
 const { Option } = Select;
@@ -131,7 +145,7 @@ const TotalEarnings = () => {
 
   // Calculate total revenue
   const totalRevenue = data.reduce((sum, item) => {
-    const amount = parseFloat(item.revenue.replace('$', ''));
+    const amount = parseFloat(item.revenue.replace("$", ""));
     return sum + amount;
   }, 0);
 
@@ -203,8 +217,12 @@ const TotalEarnings = () => {
     <div className="">
       {/* Header */}
       <div className="">
-        <h1 className="text-2xl font-bold text-gray-800 mb-2">Total Earnings</h1>
-        <p className="text-gray-600">Track and monitor your revenue and earnings</p>
+        <h1 className="text-2xl font-bold text-gray-800 mb-2">
+          Total Earnings
+        </h1>
+        <p className="text-gray-600">
+          Track and monitor your revenue and earnings
+        </p>
       </div>
 
       {/* Statistics Cards */}
@@ -256,7 +274,7 @@ const TotalEarnings = () => {
       </Row> */}
 
       {/* Date Range Filter */}
-      <div className="mb-6 flex justify-between items-center">
+      <div className="mb-2 flex justify-between items-center">
         <div className="flex items-center gap-4">
           {/* <span className="text-sm font-medium">Date Range:</span> */}
           <Select
@@ -271,13 +289,17 @@ const TotalEarnings = () => {
           </Select>
         </div>
         <div className="bg-blue-50 px-4 py-2 rounded-lg border border-blue-200">
-          <span className="text-sm text-blue-600 font-medium">Total Revenue: </span>
-          <span className="text-lg font-bold text-blue-700">${totalRevenue.toFixed(2)}</span>
+          <span className="text-sm text-blue-600 font-medium">
+            Total Revenue:{" "}
+          </span>
+          <span className="text-lg font-bold text-blue-700">
+            ${totalRevenue.toFixed(2)}
+          </span>
         </div>
       </div>
 
       {/* Earnings Table */}
-      <div style={{ overflowX: 'auto' }}>
+      <div style={{ overflowX: "auto" }}>
         <Table
           components={components}
           columns={columns}
@@ -290,7 +312,7 @@ const TotalEarnings = () => {
             // showTotal: (total, range) =>
             //   `${range[0]}-${range[1]} of ${total} items`,
           }}
-          scroll={{ x: 'max-content' }}
+          scroll={{ x: "max-content" }}
           // rowSelection={{
           //   type: 'checkbox',
           //   onChange: (selectedRowKeys, selectedRows) => {
@@ -298,10 +320,8 @@ const TotalEarnings = () => {
           //   },
           // }}
           className="custom-table"
-
         />
       </div>
-  
     </div>
   );
 };
