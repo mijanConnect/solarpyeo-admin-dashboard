@@ -28,8 +28,16 @@ const baseQueryWithReauth = async (args, api, extraOptions) => {
     localStorage.removeItem("token");
     localStorage.removeItem("refreshToken");
 
-    // Redirect to login page
-    window.location.href = "/auth/login";
+    // Avoid redirect loops: only redirect if not already on an /auth route
+    try {
+      const pathname = window?.location?.pathname || "";
+      if (!pathname.startsWith("/auth")) {
+        window.location.href = "/auth/login";
+      }
+    } catch (e) {
+      // Fallback: do a redirect if reading location fails
+      window.location.href = "/auth/login";
+    }
   }
 
   return result;
@@ -37,7 +45,7 @@ const baseQueryWithReauth = async (args, api, extraOptions) => {
 
 export const api = createApi({
   reducerPath: "api",
-  tagTypes: ["Profile"],
+  tagTypes: ["Profile", "InitialSubmission"],
   baseQuery: baseQueryWithReauth,
   endpoints: () => ({}),
 });
