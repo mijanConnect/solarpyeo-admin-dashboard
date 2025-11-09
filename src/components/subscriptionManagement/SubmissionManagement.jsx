@@ -47,9 +47,20 @@ export default function SubmmissionManagement() {
             style={{ width: 300, height: 40 }}
             options={[
               { label: "Initial Submission", value: "initial" },
-              { label: "Misuse Submission", value: "misuse" },
-              { label: "Appeal Submission", value: "appeal" },
               { label: "Respondent Submission", value: "respondent" },
+              { label: "Appeal Submission", value: "appeal" },
+              { label: "Misuse Submission", value: "misuse" },
+              {
+                label: "Technical Support Submission",
+                value: "technical_support",
+              },
+              { label: "Juror Program Submission", value: "juror_program" },
+              { label: "Identity Claim Submission", value: "identity_claim" },
+              {
+                label: "Recusal & Conflict Submission",
+                value: "recusal_conflict",
+              },
+              { label: "Seal or Expunge Submission", value: "seal_or_expunge" },
             ]}
           />
         </div>
@@ -57,9 +68,9 @@ export default function SubmmissionManagement() {
 
       {/* Render only the selected component */}
       {selected === "initial" && <InitialSubmission />}
-      {selected === "misuse" && <MisuseSubmission />}
-      {selected === "appeal" && <AppealSubmission />}
       {selected === "respondent" && <RespondentSubmission />}
+      {selected === "appeal" && <AppealSubmission />}
+      {selected === "misuse" && <MisuseSubmission />}
     </div>
   );
 }
