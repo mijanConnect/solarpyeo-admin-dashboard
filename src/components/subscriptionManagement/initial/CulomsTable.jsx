@@ -145,6 +145,7 @@ export const TableColumns = (actionHandlers) => {
                 <Button
                   onClick={() => directAccept(record, "UNDER_JURY_REVIEW")}
                   size="large"
+                  disabled={true}
                   style={{
                     backgroundColor: "#1890ff",
                     borderColor: "#1890ff",

@@ -1,11 +1,5 @@
-import React from "react";
-import { Button, Tag, Tooltip, Modal, message } from "antd";
-import { FaFilePdf, FaEdit } from "react-icons/fa";
-import { MdGavel } from "react-icons/md";
+import { Button, Tag, Tooltip } from "antd";
 import { getStatusColor } from "./sampleData";
-// import { getStatusColor } from "./sampleData";
-// import { getStatusColor } from "./sampleData";
-// import { getStatusColor } from '../data/sampleData';
 
 export const TableColumns = (actionHandlers) => {
   const {
@@ -17,18 +11,6 @@ export const TableColumns = (actionHandlers) => {
     directAccept,
   } = actionHandlers;
 
-  //   const handleRejectConfirm = (record) => {
-  //     Modal.confirm({
-  //       title: 'Are you sure?',
-  //       content: 'Do you want to reject this submission?',
-  //       okText: 'Yes, Reject',
-  //       cancelText: 'Cancel',
-  //       onOk() {
-  //         handleReject(record);
-  //       }
-  //     });
-  //   };
-
   return [
     {
       title: "SL",
@@ -38,7 +20,7 @@ export const TableColumns = (actionHandlers) => {
       width: 60,
     },
     {
-      title: "Misuse Name",
+      title: "Initiator Name",
       dataIndex: "initiatorName",
       key: "initiatorName",
       align: "center",
@@ -50,21 +32,27 @@ export const TableColumns = (actionHandlers) => {
       align: "center",
     },
     {
-      title: "Respondent Name",
-      dataIndex: "respondentName",
-      key: "respondentName",
+      title: "Known",
+      dataIndex: "known",
+      key: "known",
       align: "center",
     },
+    // {
+    //   title: "Case Type",
+    //   dataIndex: "caseType",
+    //   key: "caseType",
+    //   align: "center",
+    // },
+    // {
+    //   title: "Moderator Name",
+    //   dataIndex: "moderatorName",
+    //   key: "moderatorName",
+    //   align: "center",
+    // },
     {
-      title: "Case Type",
-      dataIndex: "caseType",
-      key: "caseType",
-      align: "center",
-    },
-    {
-      title: "Moderator Name",
-      dataIndex: "moderatorName",
-      key: "moderatorName",
+      title: "Affirmation",
+      dataIndex: "affirmationAndSignature",
+      key: "affirmationAndSignature",
       align: "center",
     },
     {
@@ -84,71 +72,116 @@ export const TableColumns = (actionHandlers) => {
       title: "Action",
       key: "action",
       align: "center",
-      render: (_, record) => (
-        <div className="flex justify-center gap-2">
-          {/* PDF View Button */}
-          <Tooltip title="View PDF">
-            <Button
-              type="primary"
-              onClick={() => showPDFModal(record)}
-              size="large"
-            >
-              Details
-            </Button>
-          </Tooltip>
+      render: (_, record) => {
+        // Prefer machineStatus (server value) for logic; fall back to human status
+        const ms = (record.machineStatus || record.status || "")
+          .toString()
+          .toUpperCase();
+        const jurorCount = Number(record.jurorCount || 0);
 
-          {/* Accept Button - Only for Pending/Running submissions */}
-          {(record.status === "Running" || record.status === "Pending") && (
-            <Tooltip title="Send to Jury">
+        const id = record?._id;
+
+        // If rejected, only show Details
+        if (ms === "REJECTED") {
+          return (
+            <div className="flex justify-center gap-2">
+              <Tooltip title="View PDF">
+                <Button
+                  type="primary"
+                  onClick={() => showPDFModal(record)}
+                  size="large"
+                >
+                  Details
+                </Button>
+              </Tooltip>
+            </div>
+          );
+        }
+
+        return (
+          <div className="flex justify-center gap-2">
+            {/* PDF View Button - always available */}
+            <Tooltip title="View PDF">
               <Button
-                onClick={() => directAccept(record)}
+                type="primary"
+                onClick={() => showPDFModal(record)}
                 size="large"
-                style={{
-                  backgroundColor: "#52c41a",
-                  borderColor: "#52c41a",
-                  color: "white",
-                }}
               >
-                Accept
+                Details
               </Button>
             </Tooltip>
-          )}
 
-          {/* Final Review Button */}
-          {record.status === "Final Review" && (
-            <Tooltip title="Final Edit">
-              <Button
-                onClick={() => showEditModal(record)}
-                size="large"
-                style={{
-                  backgroundColor: "#13c2c2",
-                  borderColor: "#13c2c2",
-                  color: "white",
-                }}
-              >
-                Final Review
-              </Button>
-            </Tooltip>
-          )}
+            {/* If jurorCount >= 3 show Final Review */}
+            {jurorCount >= 3 && (
+              <Tooltip title="Final Edit">
+                <Button
+                  onClick={() => showEditModal(record)}
+                  size="large"
+                  style={{
+                    backgroundColor: "#13c2c2",
+                    borderColor: "#13c2c2",
+                    color: "white",
+                  }}
+                >
+                  Final Review
+                </Button>
+              </Tooltip>
+            )}
 
-          {/* Reject Button - Only if not rejected/finalized/sent */}
-          {record.status === "Pending" && (
-            <Tooltip title="Reject">
-              <Button
-                onClick={() => handleReject(record)}
-                size="large"
-                style={{
-                  backgroundColor: "#f5222d",
-                  borderColor: "#f5222d",
-                  color: "white",
-                }}
-              >
-                Reject
-              </Button>
-            </Tooltip>
-          )}
-        </div>
-      ),
+            {/* Show Accept (send to jury) for PENDING, APPROVED, REVIEW */}
+            {(ms === "PENDING" || ms === "REVIEW") && jurorCount < 3 && (
+              <Tooltip title="Send to Jury">
+                <Button
+                  onClick={() => directAccept(record, "APPROVED")}
+                  size="large"
+                  style={{
+                    backgroundColor: "#52c41a",
+                    borderColor: "#52c41a",
+                    color: "white",
+                  }}
+                >
+                  Send to Jury
+                </Button>
+              </Tooltip>
+            )}
+
+            {/* If APPROVED show Under Jury Review button */}
+            {ms === "APPROVED" && jurorCount < 3 && (
+              <Tooltip title="Under Jury Review">
+                <Button
+                  onClick={() => directAccept(record, "UNDER_JURY_REVIEW")}
+                  size="large"
+                  disabled={true}
+                  style={{
+                    backgroundColor: "#1890ff",
+                    borderColor: "#1890ff",
+                    color: "white",
+                  }}
+                >
+                  Under Jury Review
+                </Button>
+              </Tooltip>
+            )}
+
+            {/* Reject Button - only when pending */}
+            {ms === "PENDING" && (
+              <Tooltip title="Reject">
+                <Button
+                  onClick={() => handleReject(record)}
+                  size="large"
+                  style={{
+                    backgroundColor: "#f5222d",
+                    borderColor: "#f5222d",
+                    color: "white",
+                  }}
+                >
+                  Reject
+                </Button>
+              </Tooltip>
+            )}
+          </div>
+        );
+      },
     },
   ];
 };

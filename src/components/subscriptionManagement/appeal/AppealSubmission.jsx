@@ -1,95 +1,160 @@
-import React, { useState } from "react";
+import { Input, message, Modal, Select, Table } from "antd";
+import { useMemo, useState } from "react";
+// sampleData removed - using server data via RTK Query
 import {
-  Table,
-  Button,
-  Input,
-  Select,
-  Tag,
-  Tooltip,
-  message,
-  Modal,
-} from "antd";
-import { FaFilePdf, FaEdit } from "react-icons/fa";
-import { MdGavel } from "react-icons/md";
-import { sampleData } from "./sampleData";
+  useGetAppealSubmissionsQuery,
+  useUpdateSubmissionMutation,
+} from "../../../redux/apiSlices/appealSubmission";
 import { TableColumns } from "./CulomsTable";
-import {
-  AcceptModal,
-  EditModal,
-  JuryModal,
-  PDFModal,
-} from "./GeneratePDFContent ";
+// import { AcceptModal, EditModal, JuryModal } from "./GeneratePDFContent ";
+import PDFModal from "./PDFModal";
 
 const { Option } = Select;
 
 const AppealSubmission = () => {
-  const [data, setData] = useState(sampleData);
+  // local UI state
+  const [data, setData] = useState([]);
   const [searchText, setSearchText] = useState("");
   const [submissionType, setSubmissionType] = useState("All");
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10);
   const [isPDFModalVisible, setIsPDFModalVisible] = useState(false);
   const [isAcceptModalVisible, setIsAcceptModalVisible] = useState(false);
   const [isJuryModalVisible, setIsJuryModalVisible] = useState(false);
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
   const [selectedRecord, setSelectedRecord] = useState(null);
+  const [lastNameSearch, setLastNameSearch] = useState("");
 
-  // Filter data
-  const filteredData = data.filter((item) => {
-    const matchesSearch =
-      item.initiatorName.toLowerCase().includes(searchText.toLowerCase()) ||
-      item.email.toLowerCase().includes(searchText.toLowerCase()) ||
-      item.caseType.toLowerCase().includes(searchText.toLowerCase()) ||
-      item.submissionType.toLowerCase().includes(searchText.toLowerCase());
+  const queryParams = [
+    { name: "page", value: page },
+    { name: "limit", value: limit },
+  ];
+  if (searchText.trim()) {
+    queryParams.push({ name: "fastName", value: searchText.trim() });
+  }
 
-    const matchesType =
-      submissionType === "All" || item.status === submissionType;
+  if (submissionType && submissionType !== "All") {
+    // Map display status to API status format
+    const statusMap = {
+      Pending: "PENDING",
+      "Under Jury Review": "APPROVED",
+      "Final Review": "FINAL_REVIEW",
+      Rejected: "REJECTED",
+      Completed: "COMPLETED",
+    };
+    const apiStatus =
+      statusMap[submissionType] ||
+      submissionType.toUpperCase().replace(/ /g, "_");
+    queryParams.push({ name: "status", value: apiStatus });
+  }
 
-    return matchesSearch && matchesType;
-  });
+  // Fetch from server using RTK Query
+  const {
+    data: resp,
+    isLoading,
+    isFetching,
+    error,
+  } = useGetAppealSubmissionsQuery(queryParams);
+
+  console.log(resp);
+
+  // Map server response to table-friendly shape
+  const tableData = useMemo(() => {
+    const items = resp?.data || [];
+    return items.map((item, index) => {
+      const initiatorName = item.user?.name || "N/A";
+      const email = item.user?.email || "N/A";
+      const respondentName =
+        [
+          item.respondentFastName,
+          item.respondentMiddleName,
+          item.respondentLastName,
+        ]
+          .filter(Boolean)
+          .join(" ") || "N/A";
+      const caseType = item.typeOfFiling || item.caseId || "N/A";
+      const jurorVote = (item.jurorDecisions?.length || 0) + " of 3";
+      const humanStatus = (item.status || "")
+        .toLowerCase()
+        .replace(/_/g, " ")
+        .split(" ")
+        .map((s) => s.charAt(0).toUpperCase() + s.slice(1))
+        .join(" ");
+
+      return {
+        key: item._id,
+        id: (page - 1) * limit + index + 1,
+        initiatorName,
+        email,
+        respondentName,
+        caseType,
+        moderatorName: item.moderatorName || "N/A",
+        jurorVote,
+        status: humanStatus,
+        // keep original machine status for control logic (e.g., PENDING/APPROVED/REJECTED)
+        machineStatus: (item.status || "").toString(),
+        jurorCount: item.jurorDecisions?.length || 0,
+        raw: item,
+      };
+    });
+  }, [resp, page, limit]);
 
   // Modal handlers
   const showPDFModal = (record) => {
-    setSelectedRecord(record);
+    setSelectedRecord(record?.raw || record);
     setIsPDFModalVisible(true);
   };
 
-  const showAcceptModal = (record) => {
-    setSelectedRecord(record);
-    setIsAcceptModalVisible(true);
-  };
+  // const showAcceptModal = (record) => {
+  //   setSelectedRecord(record?.raw || record);
+  //   setIsAcceptModalVisible(true);
+  // };
 
-  const showJuryModal = (record) => {
-    setSelectedRecord(record);
-    setIsJuryModalVisible(true);
-  };
+  // const showJuryModal = (record) => {
+  //   setSelectedRecord(record?.raw || record);
+  //   setIsJuryModalVisible(true);
+  // };
 
-  const showEditModal = (record) => {
-    setSelectedRecord(record);
-    setIsEditModalVisible(true);
-  };
+  // const showEditModal = (record) => {
+  //   setSelectedRecord(record?.raw || record);
+  //   setIsEditModalVisible(true);
+  // };
 
   // Action handlers
-  const handleAcceptSubmit = () => {
-    const updatedData = data.map((item) =>
-      item.id === selectedRecord.id ? { ...item, status: "Sent to Jury" } : item
-    );
-    setData(updatedData);
-    setIsAcceptModalVisible(false);
-    message.success("Case sent to jury for review!");
+  const [updateSubmission, { isLoading: isUpdating }] =
+    useUpdateSubmissionMutation();
+
+  const handleAcceptSubmit = async () => {
+    if (!selectedRecord?._id) return;
+    try {
+      await updateSubmission({
+        id: selectedRecord._id,
+        body: { status: "APPROVED" },
+      }).unwrap();
+      setIsAcceptModalVisible(false);
+      message.success("Case sent to jury for review!");
+    } catch (err) {
+      console.error(err);
+      message.error("Failed to send to jury");
+    }
   };
 
   // Accept Function with Confirmation
-  const directAccept = (record) => {
+  const directAccept = (record, newStatus = "APPROVED") => {
     Modal.confirm({
       title: "Are you sure?",
       content: "Do you want to accept this submission and send it to jury?",
       okText: "Yes, Accept",
       cancelText: "Cancel",
-      onOk() {
-        const updatedData = data.map((item) =>
-          item.id === record.id ? { ...item, status: "Sent to Jury" } : item
-        );
-        setData(updatedData);
-        message.success("Case sent to jury successfully!");
+      async onOk() {
+        try {
+          const id = record?.raw?._id || record?.key || record?.id;
+          await updateSubmission({ id, body: { status: newStatus } }).unwrap();
+          message.success("Case sent to jury successfully!");
+        } catch (err) {
+          console.error(err);
+          message.error("Failed to send to jury");
+        }
       },
     });
   };
@@ -155,21 +220,24 @@ const AppealSubmission = () => {
       content: "Do you want to reject this submission?",
       okText: "Yes, Reject",
       cancelText: "Cancel",
-      onOk() {
-        const updatedData = data.map((item) =>
-          item.id === record.id ? { ...item, status: "Rejected" } : item
-        );
-        setData(updatedData);
-        message.success("Submission rejected!");
+      async onOk() {
+        try {
+          const id = record?.raw?._id || record?.key || record?.id;
+          await updateSubmission({ id, body: { status: "REJECTED" } }).unwrap();
+          message.success("Submission rejected!");
+        } catch (err) {
+          console.error(err);
+          message.error("Failed to reject submission");
+        }
       },
     });
   };
 
   const actionHandlers = {
     showPDFModal,
-    showAcceptModal,
-    showJuryModal,
-    showEditModal,
+    // showAcceptModal,
+    // showJuryModal,
+    // showEditModal,
     handleReject,
     directAccept,
   };
@@ -210,18 +278,24 @@ const AppealSubmission = () => {
     <div className="">
       {/* Filters */}
       <div className="flex justify-between items-end bg-red-300 p-3 rounded-lg mb-4 mt-4">
-        <p className="text-[25px] font-semibold ml-1">Appeal Submissions</p>
+        <p className="text-[25px] font-semibold ml-1">Initial Submissions</p>
         <div className="flex gap-2">
           <Input
             placeholder="Search by name, email, case type, or submission type"
             value={searchText}
-            onChange={(e) => setSearchText(e.target.value)}
+            onChange={(e) => {
+              setSearchText(e.target.value);
+              setPage(1);
+            }}
             style={{ width: 350, height: 40 }}
           />
 
           <Select
             value={submissionType}
-            onChange={setSubmissionType}
+            onChange={(val) => {
+              setSubmissionType(val);
+              setPage(1);
+            }}
             style={{ width: 200, height: 40 }}
           >
             <Option value="All">All Status</Option>
@@ -240,10 +314,19 @@ const AppealSubmission = () => {
           <Table
             components={components}
             columns={columns}
-            dataSource={filteredData}
-            rowKey="id"
-            pagination={{ pageSize: 10 }}
-            scroll={{ x: 1300 }} // scroll value as fixed px
+            dataSource={tableData}
+            rowKey="key"
+            loading={isLoading || isFetching}
+            pagination={{
+              current: resp?.pagination?.page || page,
+              pageSize: resp?.pagination?.limit || limit,
+              total: resp?.pagination?.total || 0,
+              onChange: (p, ps) => {
+                setPage(p);
+                setLimit(ps);
+              },
+            }}
+            scroll={{ x: 1300 }}
             className="custom-table"
           />
         </div>
@@ -256,7 +339,7 @@ const AppealSubmission = () => {
         selectedRecord={selectedRecord}
       />
 
-      <AcceptModal
+      {/* <AcceptModal
         visible={isAcceptModalVisible}
         onCancel={() => setIsAcceptModalVisible(false)}
         onOk={handleAcceptSubmit}
@@ -275,7 +358,7 @@ const AppealSubmission = () => {
         onCancel={() => setIsEditModalVisible(false)}
         onSubmit={handleFinalEdit}
         selectedRecord={selectedRecord}
-      />
+      /> */}
     </div>
   );
 };

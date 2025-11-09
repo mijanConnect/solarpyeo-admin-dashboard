@@ -6,12 +6,8 @@ import {
   useUpdateSubmissionMutation,
 } from "../../../redux/apiSlices/initialSubmission";
 import { TableColumns } from "./CulomsTable";
-import {
-  AcceptModal,
-  EditModal,
-  JuryModal,
-  PDFModal,
-} from "./GeneratePDFContent ";
+// import { AcceptModal, EditModal, JuryModal } from "./GeneratePDFContent ";
+import PDFModal from "./PDFModal";
 
 const { Option } = Select;
 
@@ -37,12 +33,20 @@ const InitialSubmission = () => {
     queryParams.push({ name: "fastName", value: searchText.trim() });
   }
 
-  // if (statusFilter && statusFilter !== "all") {
-  //   queryParams.push({
-  //     name: "bookingStatus",
-  //     value: statusFilter.toUpperCase(),
-  //   });
-  // }
+  if (submissionType && submissionType !== "All") {
+    // Map display status to API status format
+    const statusMap = {
+      Pending: "PENDING",
+      "Under Jury Review": "APPROVED",
+      "Final Review": "FINAL_REVIEW",
+      Rejected: "REJECTED",
+      Completed: "COMPLETED",
+    };
+    const apiStatus =
+      statusMap[submissionType] ||
+      submissionType.toUpperCase().replace(/ /g, "_");
+    queryParams.push({ name: "status", value: apiStatus });
+  }
 
   // Fetch from server using RTK Query
   const {
@@ -79,6 +83,7 @@ const InitialSubmission = () => {
 
       return {
         key: item._id,
+        id: (page - 1) * limit + index + 1,
         initiatorName,
         email,
         respondentName,
@@ -100,20 +105,20 @@ const InitialSubmission = () => {
     setIsPDFModalVisible(true);
   };
 
-  const showAcceptModal = (record) => {
-    setSelectedRecord(record?.raw || record);
-    setIsAcceptModalVisible(true);
-  };
+  // const showAcceptModal = (record) => {
+  //   setSelectedRecord(record?.raw || record);
+  //   setIsAcceptModalVisible(true);
+  // };
 
-  const showJuryModal = (record) => {
-    setSelectedRecord(record?.raw || record);
-    setIsJuryModalVisible(true);
-  };
+  // const showJuryModal = (record) => {
+  //   setSelectedRecord(record?.raw || record);
+  //   setIsJuryModalVisible(true);
+  // };
 
-  const showEditModal = (record) => {
-    setSelectedRecord(record?.raw || record);
-    setIsEditModalVisible(true);
-  };
+  // const showEditModal = (record) => {
+  //   setSelectedRecord(record?.raw || record);
+  //   setIsEditModalVisible(true);
+  // };
 
   // Action handlers
   const [updateSubmission, { isLoading: isUpdating }] =
@@ -230,9 +235,9 @@ const InitialSubmission = () => {
 
   const actionHandlers = {
     showPDFModal,
-    showAcceptModal,
-    showJuryModal,
-    showEditModal,
+    // showAcceptModal,
+    // showJuryModal,
+    // showEditModal,
     handleReject,
     directAccept,
   };
@@ -334,7 +339,7 @@ const InitialSubmission = () => {
         selectedRecord={selectedRecord}
       />
 
-      <AcceptModal
+      {/* <AcceptModal
         visible={isAcceptModalVisible}
         onCancel={() => setIsAcceptModalVisible(false)}
         onOk={handleAcceptSubmit}
@@ -353,7 +358,7 @@ const InitialSubmission = () => {
         onCancel={() => setIsEditModalVisible(false)}
         onSubmit={handleFinalEdit}
         selectedRecord={selectedRecord}
-      />
+      /> */}
     </div>
   );
 };
