@@ -43,12 +43,12 @@ export const TableColumns = (actionHandlers) => {
       key: "caseType",
       align: "center",
     },
-    {
-      title: "Moderator Name",
-      dataIndex: "moderatorName",
-      key: "moderatorName",
-      align: "center",
-    },
+    // {
+    //   title: "Moderator Name",
+    //   dataIndex: "moderatorName",
+    //   key: "moderatorName",
+    //   align: "center",
+    // },
     {
       title: "Jury Vote",
       dataIndex: "jurorVote",

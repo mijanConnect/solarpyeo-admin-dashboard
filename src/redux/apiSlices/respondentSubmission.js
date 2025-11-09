@@ -20,7 +20,7 @@ export const respondentSubmissionApi = api.injectEndpoints({
       providesTags: ["RespondentSubmission"],
     }),
 
-    getSubmissionById: build.query({
+    getRespondentSubmissionById: build.query({
       query: (id) => ({
         url: `/submission/respondent/${id}`,
         method: "GET",
@@ -28,7 +28,7 @@ export const respondentSubmissionApi = api.injectEndpoints({
       providesTags: ["RespondentSubmission"],
     }),
 
-    updateSubmission: build.mutation({
+    updateRespondentSubmission: build.mutation({
       query: ({ id, body }) => ({
         url: `/submission/respondent/${id}`,
         method: "PATCH",
@@ -42,6 +42,6 @@ export const respondentSubmissionApi = api.injectEndpoints({
 
 export const {
   useGetRespondentSubmissionsQuery,
-  useUpdateSubmissionMutation,
-  useGetSubmissionByIdQuery,
+  useUpdateRespondentSubmissionMutation,
+  useGetRespondentSubmissionByIdQuery,
 } = respondentSubmissionApi;

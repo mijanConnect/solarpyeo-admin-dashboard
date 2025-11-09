@@ -37,9 +37,6 @@ const generatePDFContent = (record) => {
           <h2 style="color: #1890ff; border-bottom: 2px solid #e6f7ff; padding-bottom: 10px;">Case Overview</h2>
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px;">
             <div><strong>Initiator:</strong> ${record?.user?.name}</div>
-            <div><strong>Respondent:</strong> ${
-              record?.respondentFastName
-            }</div>
             <div><strong>Email:</strong> ${record?.user?.email}</div>
 
             <div><strong>Submission Date:</strong> ${formatDateTime(
@@ -59,8 +56,10 @@ const generatePDFContent = (record) => {
             <p><strong>Incident Date:</strong> ${
               record?.evidence || "Not specified"
             }</p>
-            <p><strong>Allegations:</strong> ${
-              record?.allegation || "Not specified"
+            <div><strong>Signature:</strong> ${record?.signature}</div>
+            <div><strong>Signature Date:</strong> ${formatDateTime(record?.signatureDate)}</div>
+            <p><strong>Response Declaration:</strong> ${
+              record?.responseDeclaration || "Not specified"
             }</p>
             <div><strong>Evidence:</strong><br />
               ${

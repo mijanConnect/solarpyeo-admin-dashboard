@@ -3,7 +3,7 @@ import { useMemo, useState } from "react";
 // sampleData removed - using server data via RTK Query
 import {
   useGetRespondentSubmissionsQuery,
-  useUpdateSubmissionMutation,
+  useUpdateRespondentSubmissionMutation,
 } from "../../../redux/apiSlices/respondentSubmission";
 import { TableColumns } from "./CulomsTable";
 // import { AcceptModal, EditModal, JuryModal } from "./GeneratePDFContent ";
@@ -64,15 +64,7 @@ const RespondentSubmission = () => {
     return items.map((item, index) => {
       const initiatorName = item.user?.name || "N/A";
       const email = item.user?.email || "N/A";
-      const respondentName =
-        [
-          item.respondentFastName,
-          item.respondentMiddleName,
-          item.respondentLastName,
-        ]
-          .filter(Boolean)
-          .join(" ") || "N/A";
-      const caseType = item.typeOfFiling || item.caseId || "N/A";
+      const signature = item?.signature || "N/A";
       const jurorVote = (item.jurorDecisions?.length || 0) + " of 3";
       const humanStatus = (item.status || "")
         .toLowerCase()
@@ -86,9 +78,7 @@ const RespondentSubmission = () => {
         id: (page - 1) * limit + index + 1,
         initiatorName,
         email,
-        respondentName,
-        caseType,
-        moderatorName: item.moderatorName || "N/A",
+        signature,
         jurorVote,
         status: humanStatus,
         // keep original machine status for control logic (e.g., PENDING/APPROVED/REJECTED)
@@ -122,7 +112,7 @@ const RespondentSubmission = () => {
 
   // Action handlers
   const [updateSubmission, { isLoading: isUpdating }] =
-    useUpdateSubmissionMutation();
+    useUpdateRespondentSubmissionMutation();
 
   const handleAcceptSubmit = async () => {
     if (!selectedRecord?._id) return;
