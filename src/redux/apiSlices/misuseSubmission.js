@@ -28,7 +28,7 @@ export const misuseSubmissionApi = api.injectEndpoints({
       providesTags: ["MisuseSubmission"],
     }),
 
-    updateSubmission: build.mutation({
+    updateMisuseSubmission: build.mutation({
       query: ({ id, body }) => ({
         url: `/submission/misuse/${id}`,
         method: "PATCH",
@@ -42,6 +42,6 @@ export const misuseSubmissionApi = api.injectEndpoints({
 
 export const {
   useGetMisuseSubmissionsQuery,
-  useUpdateSubmissionMutation,
+  useUpdateMisuseSubmissionMutation,
   useGetSubmissionByIdQuery,
 } = misuseSubmissionApi;

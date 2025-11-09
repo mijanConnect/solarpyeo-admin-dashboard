@@ -3,7 +3,7 @@ import { useMemo, useState } from "react";
 // sampleData removed - using server data via RTK Query
 import {
   useGetMisuseSubmissionsQuery,
-  useUpdateSubmissionMutation,
+  useUpdateMisuseSubmissionMutation,
 } from "../../../redux/apiSlices/misuseSubmission";
 import { TableColumns } from "./CulomsTable";
 // import { AcceptModal, EditModal, JuryModal } from "./GeneratePDFContent ";
@@ -127,13 +127,13 @@ const MisuseSubmission = () => {
   // };
 
   // Action handlers
-  const [updateSubmission, { isLoading: isUpdating }] =
-    useUpdateSubmissionMutation();
+  const [updateMisuseSubmission, { isLoading: isUpdating }] =
+    useUpdateMisuseSubmissionMutation();
 
   const handleAcceptSubmit = async () => {
     if (!selectedRecord?._id) return;
     try {
-      await updateSubmission({
+      await updateMisuseSubmission({
         id: selectedRecord._id,
         body: { status: "APPROVED" },
       }).unwrap();
@@ -155,7 +155,10 @@ const MisuseSubmission = () => {
       async onOk() {
         try {
           const id = record?.raw?._id || record?.key || record?.id;
-          await updateSubmission({ id, body: { status: newStatus } }).unwrap();
+          await updateMisuseSubmission({
+            id,
+            body: { status: newStatus },
+          }).unwrap();
           message.success("Case sent to jury successfully!");
         } catch (err) {
           console.error(err);
@@ -229,7 +232,10 @@ const MisuseSubmission = () => {
       async onOk() {
         try {
           const id = record?.raw?._id || record?.key || record?.id;
-          await updateSubmission({ id, body: { status: "REJECTED" } }).unwrap();
+          await updateMisuseSubmission({
+            id,
+            body: { status: "REJECTED" },
+          }).unwrap();
           message.success("Submission rejected!");
         } catch (err) {
           console.error(err);

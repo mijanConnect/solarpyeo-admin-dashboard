@@ -1,12 +1,32 @@
 import { Select } from "antd";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
+import AppealSubmission from "./appeal/AppealSubmission";
 import InitialSubmission from "./initial/InitialSubmission";
 import MisuseSubmission from "./misuse/MisuseSubmission";
-import AppealSubmission from "./appeal/AppealSubmission";
 import RespondentSubmission from "./respondent/RespondentSubmission";
 
 export default function SubmmissionManagement() {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [selected, setSelected] = useState("initial");
+
+  // Initialize selection from the URL on first render and keep in sync on back/forward
+  useEffect(() => {
+    const typeFromUrl = searchParams.get("type");
+    if (typeFromUrl && typeFromUrl !== selected) {
+      setSelected(typeFromUrl);
+    }
+  }, [searchParams]);
+
+  // When selection changes, reflect it in the URL so it persists on refresh/share
+  const handleChange = (value) => {
+    setSelected(value);
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev);
+      next.set("type", value);
+      return next;
+    });
+  };
 
   return (
     <div>
@@ -23,7 +43,7 @@ export default function SubmmissionManagement() {
           <Select
             id="submission-select"
             value={selected}
-            onChange={(value) => setSelected(value)}
+            onChange={handleChange}
             style={{ width: 300, height: 40 }}
             options={[
               { label: "Initial Submission", value: "initial" },
