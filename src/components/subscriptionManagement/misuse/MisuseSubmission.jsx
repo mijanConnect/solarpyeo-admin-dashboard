@@ -290,7 +290,7 @@ const MisuseSubmission = () => {
     <div className="">
       {/* Filters */}
       <div className="flex justify-between items-end bg-red-300 p-3 rounded-lg mb-4 mt-4">
-        <p className="text-[25px] font-semibold ml-1">Initial Submissions</p>
+        <p className="text-[25px] font-semibold ml-1">Misuse Submissions</p>
         <div className="flex gap-2">
           <Input
             placeholder="Search by name, email, case type, or submission type"

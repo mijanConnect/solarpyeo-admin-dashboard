@@ -37,9 +37,6 @@ const generatePDFContent = (record) => {
           <h2 style="color: #1890ff; border-bottom: 2px solid #e6f7ff; padding-bottom: 10px;">Case Overview</h2>
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px;">
             <div><strong>Initiator:</strong> ${record?.user?.name}</div>
-            <div><strong>Respondent:</strong> ${
-              record?.respondentFastName
-            }</div>
             <div><strong>Email:</strong> ${record?.user?.email}</div>
 
             <div><strong>Submission Date:</strong> ${formatDateTime(
@@ -54,18 +51,40 @@ const generatePDFContent = (record) => {
         </div>
 
         <div style="margin-bottom: 25px;">
+          <h3 style="color: #1890ff; margin-bottom: 5px;">Subject of the Complaint</h3>
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            <p><strong>Name:</strong> ${
+              record?.subjectOfTheComplaint?.name || "Not specified"
+            }</p>
+            <p><strong>Email:</strong> ${
+              record?.subjectOfTheComplaint?.email || "Not specified"
+            }</p>
+            <p><strong>Employee:</strong> ${
+              record?.subjectOfTheComplaint?.employee || "Not specified"
+            }</p>
+          </div>
+        </div>
+
+        <div style="margin-bottom: 25px;">
+          <h3 style="color: #1890ff; margin-bottom: 5px;">Description</h3>
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            <p>${record?.description || "Not specified"}</p>
+          </div>
+        </div>
+
+        <div style="margin-bottom: 25px;">
           <h3 style="color: #1890ff; margin-bottom: 5px;">Case Details</h3>
           <div style="display: flex; flex-direction: column; gap: 8px;">
             <p><strong>Incident Date:</strong> ${
               record?.evidence || "Not specified"
             }</p>
-            <p><strong>Allegations:</strong> ${
-              record?.allegation || "Not specified"
+            <p><strong>Nature of the Report:</strong> ${
+              record?.natureOfTheReported || "Not specified"
             }</p>
             <div><strong>Evidence:</strong><br />
               ${
-                Array.isArray(record?.evidence)
-                  ? record.evidence
+                Array.isArray(record?.supportingDocument)
+                  ? record.supportingDocument
                       .map(
                         (img) => `
                 <div style="margin-right:8px; margin-top:8px; display:inline-block;vertical-align:top;">

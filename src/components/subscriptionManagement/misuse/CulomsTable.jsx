@@ -71,7 +71,8 @@ export const TableColumns = (actionHandlers) => {
     {
       title: "Action",
       key: "action",
-      align: "center",
+      align: "start",
+      width: 100,
       render: (_, record) => {
         // Prefer machineStatus (server value) for logic; fall back to human status
         const ms = (record.machineStatus || record.status || "")
@@ -89,7 +90,7 @@ export const TableColumns = (actionHandlers) => {
                 <Button
                   type="primary"
                   onClick={() => showPDFModal(record)}
-                  size="large"
+                  size="medium"
                 >
                   Details
                 </Button>
@@ -99,13 +100,13 @@ export const TableColumns = (actionHandlers) => {
         }
 
         return (
-          <div className="flex justify-center gap-2">
+          <div className="flex justify-start gap-2">
             {/* PDF View Button - always available */}
             <Tooltip title="View PDF">
               <Button
                 type="primary"
                 onClick={() => showPDFModal(record)}
-                size="large"
+                size="medium"
               >
                 Details
               </Button>
@@ -116,7 +117,7 @@ export const TableColumns = (actionHandlers) => {
               <Tooltip title="Final Edit">
                 <Button
                   onClick={() => showEditModal(record)}
-                  size="large"
+                  size="medium"
                   style={{
                     backgroundColor: "#13c2c2",
                     borderColor: "#13c2c2",
@@ -133,7 +134,7 @@ export const TableColumns = (actionHandlers) => {
               <Tooltip title="Send to Jury">
                 <Button
                   onClick={() => directAccept(record, "APPROVED")}
-                  size="large"
+                  size="medium"
                   style={{
                     backgroundColor: "#52c41a",
                     borderColor: "#52c41a",
@@ -150,7 +151,7 @@ export const TableColumns = (actionHandlers) => {
               <Tooltip title="Under Jury Review">
                 <Button
                   onClick={() => directAccept(record, "UNDER_JURY_REVIEW")}
-                  size="large"
+                  size="medium"
                   disabled={true}
                   style={{
                     backgroundColor: "#1890ff",
@@ -168,7 +169,7 @@ export const TableColumns = (actionHandlers) => {
               <Tooltip title="Reject">
                 <Button
                   onClick={() => handleReject(record)}
-                  size="large"
+                  size="medium"
                   style={{
                     backgroundColor: "#f5222d",
                     borderColor: "#f5222d",

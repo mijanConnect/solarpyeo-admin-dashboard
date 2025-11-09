@@ -90,7 +90,7 @@ export const sampleData = [
 // Utility function for status colors
 export const getStatusColor = (status) => {
   switch (status) {
-    case "Accepted":
+    case "Approved":
     case "Running":
       return "#52c41a";
     case "Rejected":
