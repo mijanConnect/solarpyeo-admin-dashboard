@@ -64,15 +64,7 @@ const AppealSubmission = () => {
     return items.map((item, index) => {
       const initiatorName = item.user?.name || "N/A";
       const email = item.user?.email || "N/A";
-      const respondentName =
-        [
-          item.respondentFastName,
-          item.respondentMiddleName,
-          item.respondentLastName,
-        ]
-          .filter(Boolean)
-          .join(" ") || "N/A";
-      const caseType = item.typeOfFiling || item.caseId || "N/A";
+      const reviewOption = item.reviewOption || "N/A";
       const jurorVote = (item.jurorDecisions?.length || 0) + " of 3";
       const humanStatus = (item.status || "")
         .toLowerCase()
@@ -86,9 +78,7 @@ const AppealSubmission = () => {
         id: (page - 1) * limit + index + 1,
         initiatorName,
         email,
-        respondentName,
-        caseType,
-        moderatorName: item.moderatorName || "N/A",
+        reviewOption,
         jurorVote,
         status: humanStatus,
         // keep original machine status for control logic (e.g., PENDING/APPROVED/REJECTED)
@@ -278,7 +268,7 @@ const AppealSubmission = () => {
     <div className="">
       {/* Filters */}
       <div className="flex justify-between items-end bg-red-300 p-3 rounded-lg mb-4 mt-4">
-        <p className="text-[25px] font-semibold ml-1">Initial Submissions</p>
+        <p className="text-[25px] font-semibold ml-1">Appeal Submissions</p>
         <div className="flex gap-2">
           <Input
             placeholder="Search by name, email, case type, or submission type"

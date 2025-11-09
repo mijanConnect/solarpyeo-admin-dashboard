@@ -54,18 +54,36 @@ const generatePDFContent = (record) => {
         </div>
 
         <div style="margin-bottom: 25px;">
+          <h3 style="color: #1890ff; margin-bottom: 5px;">Appeal Grounds</h3>
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            <p>${record?.appealGrounds || "Not specified"}</p>
+          </div>
+        </div>
+
+        <div style="margin-bottom: 25px;">
+          <h3 style="color: #1890ff; margin-bottom: 5px;">Justification</h3>
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            <p>${record?.justification || "Not specified"}</p>
+          </div>
+        </div>
+
+        <div style="margin-bottom: 25px;">
+          <h3 style="color: #1890ff; margin-bottom: 5px;">Declaration and Submission</h3>
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            <p>${record?.declarationAndSubmission || "Not specified"}</p>
+          </div>
+        </div>
+        
+        <div style="margin-bottom: 25px;">
           <h3 style="color: #1890ff; margin-bottom: 5px;">Case Details</h3>
           <div style="display: flex; flex-direction: column; gap: 8px;">
-            <p><strong>Incident Date:</strong> ${
-              record?.evidence || "Not specified"
-            }</p>
-            <p><strong>Allegations:</strong> ${
-              record?.allegation || "Not specified"
+            <p><strong>Review Option:</strong> ${
+              record?.reviewOption || "Not specified"
             }</p>
             <div><strong>Evidence:</strong><br />
               ${
-                Array.isArray(record?.evidence)
-                  ? record.evidence
+                Array.isArray(record?.supportingDocument)
+                  ? record.supportingDocument
                       .map(
                         (img) => `
                 <div style="margin-right:8px; margin-top:8px; display:inline-block;vertical-align:top;">
