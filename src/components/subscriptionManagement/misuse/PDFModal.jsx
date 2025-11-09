@@ -403,21 +403,23 @@ export const PDFModal = ({ visible, onCancel, selectedRecord }) => {
       visible={visible}
       onCancel={onCancel}
       footer={[
-        <Button key="close" onClick={onCancel} size="large">
-          Close
-        </Button>,
-        <Button
-          key="download"
-          type="primary"
-          onClick={handleDownloadPDF}
-          size="large"
-          style={{
-            background: "linear-gradient(135deg, #f5222d 0%, #cf1322 100%)",
-            border: "none",
-          }}
-        >
-          📄 Download PDF
-        </Button>,
+        <div className="mt-6 flex justify-end gap-3" key="footer-buttons">
+          <Button key="close" onClick={onCancel} size="large">
+            Close
+          </Button>
+          <Button
+            key="download"
+            type="primary"
+            onClick={handleDownloadPDF}
+            size="large"
+            style={{
+              background: "linear-gradient(135deg, #f5222d 0%, #cf1322 100%)",
+              border: "none",
+            }}
+          >
+            📄 Download PDF
+          </Button>
+        </div>,
       ]}
       width={1000}
       style={{ top: 20 }}
