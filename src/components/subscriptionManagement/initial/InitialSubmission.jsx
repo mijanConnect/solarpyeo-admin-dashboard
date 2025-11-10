@@ -15,9 +15,9 @@ const InitialSubmission = () => {
   // local UI state
   const [data, setData] = useState([]);
   const [searchText, setSearchText] = useState("");
-  const [submissionType, setSubmissionType] = useState("All");
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
+  const [submissionType, setSubmissionType] = useState("All");
   const [isPDFModalVisible, setIsPDFModalVisible] = useState(false);
   const [isAcceptModalVisible, setIsAcceptModalVisible] = useState(false);
   const [isJuryModalVisible, setIsJuryModalVisible] = useState(false);
