@@ -56,11 +56,17 @@ const generatePDFContent = (record) => {
         <div style="margin-bottom: 25px;">
           <h3 style="color: #1890ff; margin-bottom: 5px;">Case Details</h3>
           <div style="display: flex; flex-direction: column; gap: 8px;">
-            <p><strong>Incident Date:</strong> ${
-              record?.evidence || "Not specified"
-            }</p>
+
             <p><strong>Allegations:</strong> ${
-              record?.allegation || "Not specified"
+              Array.isArray(record?.allegation)
+                ? `
+                <ul style="margin:6px 0 0 18px; padding:0 0 0 18px; color:#000">
+                  ${record.allegation
+                    .map((a) => `<li style="margin-bottom:4px;">${a}</li>`)
+                    .join("")}
+                </ul>
+              `
+                : record?.allegation || "Not specified"
             }</p>
             <div><strong>Evidence:</strong><br />
               ${
@@ -153,7 +159,15 @@ const generatePDFContent = (record) => {
             record.caseDetails?.incidentDate || "Not specified"
           }</p>
           <p><strong>Allegations:</strong> ${
-            record.caseDetails?.allegations || "Not specified"
+            Array.isArray(record.caseDetails?.allegations)
+              ? `
+                <ul style="margin:6px 0 0 18px; padding:0 0 0 18px; color:#000">
+                  ${record.caseDetails.allegations
+                    .map((a) => `<li style="margin-bottom:4px;">${a}</li>`)
+                    .join("")}
+                </ul>
+              `
+              : record.caseDetails?.allegations || "Not specified"
           }</p>
           <div><strong>Evidence:</strong><br />
             ${
@@ -252,7 +266,15 @@ const generatePDFContent = (record) => {
             record.caseDetails?.incidentDate || "Not specified"
           }</p>
           <p><strong>Allegations:</strong> ${
-            record.caseDetails?.allegations || "Not specified"
+            Array.isArray(record.caseDetails?.allegations)
+              ? `
+                <ul style="margin:6px 0 0 18px; padding:0 0 0 18px; color:#000">
+                  ${record.caseDetails.allegations
+                    .map((a) => `<li style="margin-bottom:4px;">${a}</li>`)
+                    .join("")}
+                </ul>
+              `
+              : record.caseDetails?.allegations || "Not specified"
           }</p>
           <div><strong>Evidence:</strong><br />
             ${

@@ -1,30 +1,16 @@
-import React, { useState } from "react";
-import { FaCalendarDay, FaDollarSign } from "react-icons/fa";
-import { HiMiniUsers } from "react-icons/hi2";
-import { MdArrowUpward, MdOutlineHome } from "react-icons/md";
-import { PiHouseLine } from "react-icons/pi";
-import { Bar } from "react-chartjs-2";
-import LineChart from "./LineChart";
-import BarChart from "./BarChart";
 import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
   BarElement,
+  CategoryScale,
+  Chart as ChartJS,
+  Legend,
+  LinearScale,
   Title,
   Tooltip,
-  Legend,
 } from "chart.js";
+import { useState } from "react";
+import { People, Points, Revenue, Sales } from "../../components/common/Svg";
 import OrderTable from "../../components/home/OrderTable";
-import SalesLeaderBoard from "../../components/home/SalesLeaderBoard";
-import HomeCard from "../../components/home/HomeCard";
-import { Marchant, Revenue } from "../../components/common/Svg";
-import { People } from "../../components/common/Svg";
-import { Pending } from "../../components/common/Svg";
-import { SubscriptionManagement } from "../../components/common/Svg";
-import { Sales } from "../../components/common/Svg";
-import { Points } from "../../components/common/Svg";
-import PieChart from "./PieChart";
+import { useStatsQuery } from "../../redux/apiSlices/homeSlice";
 import RevenueLineChart from "./LineChart";
 
 ChartJS.register(
@@ -100,22 +86,31 @@ const Home = () => {
     },
   };
 
+  // Fetch overview statistics
+  const {
+    data: statsResp,
+    isLoading: statsLoading,
+    isError: statsError,
+  } = useStatsQuery();
+  const stats = statsResp?.data || {};
+  const formatNumber = (n) =>
+    typeof n === "number" ? n.toLocaleString() : n || 0;
+
   return (
     <div className="">
       <div className="flex flex-col xl:flex-row gap-10 rounded-lg">
-        {/* Pie Chart Section */}
+        {/* Left: Revenue chart */}
         <div className="border border-primary rounded-lg xl:w-2/3">
           <RevenueLineChart />
         </div>
 
-        {/* Card Section */}
+        {/* Right: Statistics header + dropdown */}
         <div className="w-full xl:w-1/3 border border-primary p-6 rounded-lg">
           <div className="flex justify-between items-center mb-4 text-white">
             <h2 className="text-secondary mt-4 text-[24px] font-bold">
               Statistics
             </h2>
             <div className="relative inline-block w-[150px]">
-              {/* Dropdown Button */}
               <button
                 onClick={() => setIsOpen(!isOpen)}
                 className="w-full font-medium text-[14px] py-[12px] px-[16px] border border-primary text-secondary rounded-lg text-left flex justify-between items-center"
@@ -124,7 +119,6 @@ const Home = () => {
                 <span className="ml-2">▼</span>
               </button>
 
-              {/* Dropdown Options */}
               {isOpen && (
                 <ul className="absolute z-10 w-full bg-white border border-primary rounded-lg mt-1 shadow-lg">
                   {options2.map((option) => (
@@ -145,14 +139,17 @@ const Home = () => {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 h-auto">
+            {/* Cards */}
             <div className="bg-white border border-primary rounded-lg flex items-center justify-center p-4">
               <div className="flex flex-col items-baseline">
                 <h2 className="text-[16px] font-semibold mb-1">
-                  Total Report Accept
+                  Total Submission 
                 </h2>
                 <h3 className="text-secondary text-[24px] font-semibold flex items-center gap-3">
                   <Sales className="w-[20px] h-[20px] text-secondary" />
-                  $4000
+                  {statsLoading
+                    ? "..."
+                    : formatNumber(stats.totalSubmissionCount)}
                 </h3>
               </div>
             </div>
@@ -160,11 +157,13 @@ const Home = () => {
             <div className="bg-white border border-primary rounded-lg flex items-center justify-center p-4">
               <div className="flex flex-col items-baseline">
                 <h2 className="text-[16px] font-semibold mb-1">
-                  Total Complete
+                  Verified User
                 </h2>
                 <h3 className="text-secondary text-[24px] font-semibold flex items-center gap-3">
                   <People className="w-[20px] h-[20px] text-secondary" />
-                  50
+                  {statsLoading
+                    ? "..."
+                    : formatNumber(stats.totalVerifiedUserCount)}
                 </h3>
               </div>
             </div>
@@ -172,11 +171,11 @@ const Home = () => {
             <div className="bg-white border border-primary rounded-lg flex items-center justify-center p-4">
               <div className="flex flex-col items-baseline">
                 <h2 className="text-[16px] font-semibold mb-1">
-                  Total Report Pending
+                  Pending Report
                 </h2>
                 <h3 className="text-secondary text-[24px] font-semibold flex items-center gap-3">
                   <Points className="w-[20px] h-[20px] text-secondary" />
-                  8,500
+                  {statsLoading ? "..." : formatNumber(stats.totalPendingCount)}
                 </h3>
               </div>
             </div>
@@ -188,14 +187,15 @@ const Home = () => {
                 </h2>
                 <h3 className="text-secondary text-[24px] font-semibold flex items-center gap-3">
                   <Revenue className="w-[20px] h-[20px] text-secondary" />
-                  23
+                  {statsLoading
+                    ? "..."
+                    : formatNumber(stats.administrationFund)}
                 </h3>
               </div>
             </div>
           </div>
         </div>
       </div>
-
       {/* Order Table */}
       <div className="mt-10">
         <OrderTable />

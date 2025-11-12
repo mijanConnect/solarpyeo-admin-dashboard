@@ -15,6 +15,22 @@ import { MdGavel } from "react-icons/md";
 
 const { TextArea } = Input;
 
+// Helper to extract a human-friendly juror label from various shapes
+const getJurorLabel = (juror) => {
+  if (!juror) return "#";
+  if (typeof juror === "string") return juror;
+  if (typeof juror === "number") return String(juror);
+  if (typeof juror === "object") {
+    // common shapes: { _id, name, email } or { name } or { id }
+    if (juror.name) return juror.name;
+    if (juror.email) return juror.email;
+    if (juror._id) return juror._id;
+    if (juror.id) return juror.id;
+    return "Juror";
+  }
+  return String(juror);
+};
+
 // Accept Modal Component
 export const AcceptModal = ({ visible, onCancel, onOk, selectedRecord }) => {
   const [confirmationChecked, setConfirmationChecked] = useState(false);
@@ -215,6 +231,7 @@ export const JuryModal = ({ visible, onCancel, onSubmit, selectedRecord }) => {
       width={800}
       okText="⚖️ Submit Jury Decision"
       cancelText="Cancel"
+      bodyStyle={{ paddingBottom: 48 }}
       okButtonProps={{
         style: {
           background: "linear-gradient(135deg, #722ed1 0%, #531dab 100%)",
@@ -295,24 +312,72 @@ export const JuryModal = ({ visible, onCancel, onSubmit, selectedRecord }) => {
                   <h4 className="font-semibold text-indigo-800 mb-3">
                     Previous Jury Decisions
                   </h4>
-                  {selectedRecord.juryFeedback.map((feedback, index) => (
-                    <div
-                      key={index}
-                      className="mb-3 p-3 bg-white rounded border border-indigo-100"
-                    >
-                      <div className="flex items-center gap-2 mb-2">
-                        <strong>Juror {feedback.jurorId}:</strong>
-                        <Tag
-                          color={
-                            feedback.decision === "approve" ? "green" : "red"
-                          }
-                        >
-                          {feedback.decision.toUpperCase()}
-                        </Tag>
+                  {selectedRecord.juryFeedback.map((feedback, index) => {
+                    const jurorId = getJurorLabel(
+                      feedback.jurorId || feedback.juror || index + 1
+                    );
+                    const decision = (
+                      feedback.decision ||
+                      feedback.action ||
+                      ""
+                    ).toUpperCase();
+                    const reason = feedback.reason || feedback.comment || "";
+                    const rawDecision = (
+                      feedback.decision ||
+                      feedback.action ||
+                      ""
+                    ).toUpperCase();
+                    let tagColor = "default";
+                    if (
+                      rawDecision === "APPROVE" ||
+                      rawDecision === "ACCEPT" ||
+                      rawDecision === "APPROVED"
+                    ) {
+                      tagColor = "green";
+                    } else if (
+                      rawDecision === "REJECT" ||
+                      rawDecision === "REJECTED"
+                    ) {
+                      tagColor = "red";
+                    } else if (
+                      rawDecision.includes("UNABLE") ||
+                      rawDecision === "UNABLETODECIDE"
+                    ) {
+                      tagColor = "gold"; // yellow-ish
+                    } else {
+                      tagColor = "default";
+                    }
+                    let displayDecision = rawDecision || "N/A";
+                    if (
+                      rawDecision === "APPROVE" ||
+                      rawDecision === "ACCEPT" ||
+                      rawDecision === "APPROVED"
+                    ) {
+                      displayDecision = "ACCEPTED";
+                    } else if (
+                      rawDecision === "REJECT" ||
+                      rawDecision === "REJECTED"
+                    ) {
+                      displayDecision = "REJECTED";
+                    } else if (
+                      rawDecision.includes("UNABLE") ||
+                      rawDecision === "UNABLETODECIDE"
+                    ) {
+                      displayDecision = "UNABLETODECIDED";
+                    }
+                    return (
+                      <div
+                        key={index}
+                        className="mb-3 p-3 bg-white rounded border border-indigo-100"
+                      >
+                        <div className="flex items-center gap-2 mb-2">
+                          <strong>Juror {jurorId}:</strong>
+                          <Tag color={tagColor}>{displayDecision}</Tag>
+                        </div>
+                        <p className="text-sm text-gray-600">{reason}</p>
                       </div>
-                      <p className="text-sm text-gray-600">{feedback.reason}</p>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
           </Card>
@@ -456,6 +521,32 @@ export const EditModal = ({ visible, onCancel, onSubmit, selectedRecord }) => {
     }
   }, [visible, editForm]);
 
+  // Normalize selectedRecord fields to show API-provided values even when shape varies
+  const sr = selectedRecord || {};
+  const caseType = sr.typeOfFiling || sr.caseType || sr.case?.type || "N/A";
+  const caseId = sr.caseId || "N/A";
+  const jurorVote = Array.isArray(sr.jurorDecisions)
+    ? sr.jurorDecisions.length
+    : sr.jurorVote ??
+      (Array.isArray(sr.juryFeedback)
+        ? sr.juryFeedback.length
+        : sr.jurorCount ?? 0);
+  const initiatorName =
+    sr.initiatorName ||
+    sr.user?.name ||
+    sr.initiator?.name ||
+    sr.user?.firstName ||
+    "N/A";
+  const respondentName =
+    sr.respondentName ||
+    sr.respondent?.name ||
+    sr.respondentFastName ||
+    sr.respondent?.firstName ||
+    "N/A";
+  const email = sr.email || sr.user?.email || sr.contactEmail || "N/A";
+  const moderatorName = sr.moderatorName || sr.moderator?.name || "N/A";
+  const status = sr.status || sr.caseStatus || sr.currentStatus || "N/A";
+
   const addInputField = () => {
     const newId = Math.max(...inputFields.map((field) => field.id)) + 1;
     setInputFields([...inputFields, { id: newId, value: "" }]);
@@ -505,7 +596,8 @@ export const EditModal = ({ visible, onCancel, onSubmit, selectedRecord }) => {
       visible={visible}
       onCancel={onCancel}
       onOk={handleSubmit}
-      width={800}
+      width={900}
+      bodyStyle={{ paddingBottom: 25 }}
       okText="Submit Final Decision"
       cancelText="Cancel"
     >
@@ -514,72 +606,137 @@ export const EditModal = ({ visible, onCancel, onSubmit, selectedRecord }) => {
           <Card title="Case Summary">
             <div className="grid grid-cols-2 gap-4 mb-4">
               <div>
-                <strong>Case Type:</strong> {selectedRecord.caseType}
+                <strong>Case Type:</strong> {caseType}
               </div>
               <div>
-                <strong>Jury Votes:</strong> {selectedRecord.jurorVote}
+                <strong>Case ID:</strong> {caseId}
               </div>
               <div>
-                <strong>Initiator:</strong> {selectedRecord.initiatorName}
+                <strong>Initiator:</strong> {initiatorName}
               </div>
               <div>
-                <strong>Respondent:</strong> {selectedRecord.respondentName}
+                <strong>Jury Votes:</strong> {jurorVote}
+              </div>
+              <div>
+                <strong>Respondent:</strong> {respondentName}
+              </div>
+              <div>
+                <strong>Email:</strong> {email}
+              </div>
+              <div>
+                <strong>Moderator:</strong> {moderatorName}
+              </div>
+              <div>
+                <strong>Current Status:</strong> {status}
               </div>
             </div>
 
-            {selectedRecord.juryFeedback &&
-              selectedRecord.juryFeedback.length > 0 && (
-                <div>
-                  <h4 style={{ marginBottom: 12 }}>Jury Panel Decisions:</h4>
-                  {selectedRecord.juryFeedback.map((feedback, index) => (
-                    <div
-                      key={index}
-                      className="mb-3 p-4 bg-gray-50 rounded-lg border"
-                    >
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center gap-2">
-                          <strong>Juror {feedback.jurorId}:</strong>
-                          <Tag
-                            color={
-                              feedback.decision === "approve" ? "green" : "red"
-                            }
-                          >
-                            {feedback.decision.toUpperCase()}
-                          </Tag>
-                          {feedback.confidenceLevel && (
-                            <Tag
-                              color={
-                                feedback.confidenceLevel === "high"
-                                  ? "blue"
-                                  : feedback.confidenceLevel === "medium"
-                                  ? "orange"
-                                  : "red"
-                              }
-                            >
-                              {feedback.confidenceLevel.toUpperCase()}{" "}
-                              CONFIDENCE
-                            </Tag>
+            {selectedRecord.jurorDecisions &&
+              selectedRecord.jurorDecisions.length > 0 && (
+                <div className="border px-4 py-1 rounded-lg">
+                  <h4 className="mb-3 mt-2 font-semibold">
+                    Jury Panel Decisions:
+                  </h4>
+                  {selectedRecord.jurorDecisions.map((feedback, index) => {
+                    const jurorId = getJurorLabel(
+                      feedback.jurorId || feedback.juror || index + 1
+                    );
+                    const decision = (
+                      feedback.decision ||
+                      feedback.action ||
+                      ""
+                    ).toUpperCase();
+                    const reason = feedback.reason || feedback.comment || "";
+                    const confidence = (
+                      feedback.confidenceLevel || ""
+                    ).toUpperCase();
+                    const rawDecision = (
+                      feedback.decision ||
+                      feedback.action ||
+                      ""
+                    ).toUpperCase();
+                    let tagColor = "default";
+                    if (
+                      rawDecision === "APPROVE" ||
+                      rawDecision === "ACCEPT" ||
+                      rawDecision === "APPROVED"
+                    ) {
+                      tagColor = "green";
+                    } else if (
+                      rawDecision === "REJECT" ||
+                      rawDecision === "REJECTED"
+                    ) {
+                      tagColor = "red";
+                    } else if (
+                      rawDecision.includes("UNABLE") ||
+                      rawDecision === "UNABLETODECIDE"
+                    ) {
+                      tagColor = "gold"; // yellow-ish
+                    } else {
+                      tagColor = "default";
+                    }
+                    let displayDecision = rawDecision || "N/A";
+                    if (
+                      rawDecision === "APPROVE" ||
+                      rawDecision === "ACCEPT" ||
+                      rawDecision === "APPROVED"
+                    ) {
+                      displayDecision = "ACCEPTED";
+                    } else if (
+                      rawDecision === "REJECT" ||
+                      rawDecision === "REJECTED"
+                    ) {
+                      displayDecision = "REJECTED";
+                    } else if (
+                      rawDecision.includes("UNABLE") ||
+                      rawDecision === "UNABLETODECIDE"
+                    ) {
+                      displayDecision = "UNABLETODECIDED";
+                    }
+                    const time = feedback.timestamp || feedback.votedAt || null;
+                    return (
+                      <div
+                        key={index}
+                        className="mb-3 p-4 bg-gray-50 rounded-lg border"
+                      >
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center gap-2">
+                            <strong>{jurorId}:</strong>
+                            <Tag color={tagColor}>{displayDecision}</Tag>
+                            {confidence && (
+                              <Tag
+                                color={
+                                  confidence === "HIGH"
+                                    ? "blue"
+                                    : confidence === "MEDIUM"
+                                    ? "orange"
+                                    : "red"
+                                }
+                              >
+                                {confidence} CONFIDENCE
+                              </Tag>
+                            )}
+                          </div>
+                          {time && (
+                            <span className="text-xs text-gray-500">
+                              {new Date(time).toLocaleDateString()}
+                            </span>
                           )}
                         </div>
-                        {feedback.timestamp && (
-                          <span className="text-xs text-gray-500">
-                            {new Date(feedback.timestamp).toLocaleDateString()}
-                          </span>
-                        )}
-                      </div>
-                      <div className="text-sm text-gray-700">
-                        <p className="mb-1">
-                          <strong>Reasoning:</strong> {feedback.reason}
-                        </p>
-                        {feedback.additionalNotes && (
-                          <p className="text-gray-600">
-                            <strong>Additional Notes:</strong>{" "}
-                            {feedback.additionalNotes}
+                        <div className="text-sm text-gray-700">
+                          <p className="mb-1">
+                            <strong>Reasoning:</strong> {reason}
                           </p>
-                        )}
+                          {feedback.additionalNotes && (
+                            <p className="text-gray-600">
+                              <strong>Additional Notes:</strong>{" "}
+                              {feedback.additionalNotes}
+                            </p>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
           </Card>

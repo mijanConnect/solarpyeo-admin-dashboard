@@ -5,12 +5,29 @@ const homeSlice = api.injectEndpoints({
     summary: builder.query({
       query: () => {
         return {
-          url: `/order`,
+          url: `/overview/revenue`,
           method: "GET",
         };
       },
     }),
+
+    stats: builder.query({
+      query: (args) => {
+        const params = new URLSearchParams();
+        if (args) {
+          args.forEach((arg) => {
+            params.append(arg.name, arg.value);
+          });
+        }
+        return {
+          url: `/overview/statistics?${params.toString()}`,
+          method: "GET",
+        };
+      },
+      transformResponse: (response) => response,
+      providesTags: ["InitialSubmission"],
+    }),
   }),
 });
 
-export const { useSummaryQuery } = homeSlice;
+export const { useSummaryQuery, useStatsQuery } = homeSlice;

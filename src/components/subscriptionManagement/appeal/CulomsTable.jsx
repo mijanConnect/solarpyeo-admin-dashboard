@@ -95,7 +95,7 @@ export const TableColumns = (actionHandlers) => {
             </Tooltip>
 
             {/* If jurorCount >= 3 show Final Review */}
-            {jurorCount >= 3 && (
+            {/* {jurorCount >= 3 && (
               <Tooltip title="Final Edit">
                 <Button
                   onClick={() => showEditModal(record)}
@@ -109,10 +109,10 @@ export const TableColumns = (actionHandlers) => {
                   Final Review
                 </Button>
               </Tooltip>
-            )}
+            )} */}
 
             {/* Show Accept (send to jury) for PENDING, APPROVED, REVIEW */}
-            {(ms === "PENDING" || ms === "REVIEW") && jurorCount < 3 && (
+            {/* {(ms === "PENDING" || ms === "REVIEW") && jurorCount < 3 && (
               <Tooltip title="Send to Jury">
                 <Button
                   onClick={() => directAccept(record, "APPROVED")}
@@ -126,10 +126,10 @@ export const TableColumns = (actionHandlers) => {
                   Send to Jury
                 </Button>
               </Tooltip>
-            )}
+            )} */}
 
             {/* If APPROVED show Under Jury Review button */}
-            {ms === "APPROVED" && jurorCount < 3 && (
+            {/* {ms === "APPROVED" && jurorCount < 3 && (
               <Tooltip title="Under Jury Review">
                 <Button
                   onClick={() => directAccept(record, "UNDER_JURY_REVIEW")}
@@ -144,10 +144,10 @@ export const TableColumns = (actionHandlers) => {
                   Under Jury Review
                 </Button>
               </Tooltip>
-            )}
+            )} */}
 
             {/* Reject Button - only when pending */}
-            {ms === "PENDING" && (
+            {/* {ms === "PENDING" && (
               <Tooltip title="Reject">
                 <Button
                   onClick={() => handleReject(record)}
@@ -161,7 +161,7 @@ export const TableColumns = (actionHandlers) => {
                   Reject
                 </Button>
               </Tooltip>
-            )}
+            )} */}
           </div>
         );
       },

@@ -3,10 +3,10 @@ import { useMemo, useState } from "react";
 // sampleData removed - using server data via RTK Query
 import {
   useGetInitialSubmissionsQuery,
-  useUpdateSubmissionMutation,
+  useUpdateInitialSubmissionMutation,
 } from "../../../redux/apiSlices/initialSubmission";
 import { TableColumns } from "./CulomsTable";
-// import { AcceptModal, EditModal, JuryModal } from "./GeneratePDFContent ";
+import { EditModal } from "./GeneratePDFContent ";
 import PDFModal from "./PDFModal";
 
 const { Option } = Select;
@@ -15,9 +15,9 @@ const InitialSubmission = () => {
   // local UI state
   const [data, setData] = useState([]);
   const [searchText, setSearchText] = useState("");
+  const [submissionType, setSubmissionType] = useState("All");
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
-  const [submissionType, setSubmissionType] = useState("All");
   const [isPDFModalVisible, setIsPDFModalVisible] = useState(false);
   const [isAcceptModalVisible, setIsAcceptModalVisible] = useState(false);
   const [isJuryModalVisible, setIsJuryModalVisible] = useState(false);
@@ -105,24 +105,24 @@ const InitialSubmission = () => {
     setIsPDFModalVisible(true);
   };
 
-  // const showAcceptModal = (record) => {
-  //   setSelectedRecord(record?.raw || record);
-  //   setIsAcceptModalVisible(true);
-  // };
+  const showAcceptModal = (record) => {
+    setSelectedRecord(record?.raw || record);
+    setIsAcceptModalVisible(true);
+  };
 
-  // const showJuryModal = (record) => {
-  //   setSelectedRecord(record?.raw || record);
-  //   setIsJuryModalVisible(true);
-  // };
+  const showJuryModal = (record) => {
+    setSelectedRecord(record?.raw || record);
+    setIsJuryModalVisible(true);
+  };
 
-  // const showEditModal = (record) => {
-  //   setSelectedRecord(record?.raw || record);
-  //   setIsEditModalVisible(true);
-  // };
+  const showEditModal = (record) => {
+    setSelectedRecord(record?.raw || record);
+    setIsEditModalVisible(true);
+  };
 
   // Action handlers
   const [updateSubmission, { isLoading: isUpdating }] =
-    useUpdateSubmissionMutation();
+    useUpdateInitialSubmissionMutation();
 
   const handleAcceptSubmit = async () => {
     if (!selectedRecord?._id) return;
@@ -235,9 +235,9 @@ const InitialSubmission = () => {
 
   const actionHandlers = {
     showPDFModal,
-    // showAcceptModal,
-    // showJuryModal,
-    // showEditModal,
+    showAcceptModal,
+    showJuryModal,
+    showEditModal,
     handleReject,
     directAccept,
   };
@@ -351,14 +351,14 @@ const InitialSubmission = () => {
         onCancel={() => setIsJuryModalVisible(false)}
         onSubmit={handleJurySubmit}
         selectedRecord={selectedRecord}
-      />
+      /> */}
 
       <EditModal
         visible={isEditModalVisible}
         onCancel={() => setIsEditModalVisible(false)}
         onSubmit={handleFinalEdit}
         selectedRecord={selectedRecord}
-      /> */}
+      />
     </div>
   );
 };

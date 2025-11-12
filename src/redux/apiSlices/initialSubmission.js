@@ -28,7 +28,7 @@ export const initialSubmissionApi = api.injectEndpoints({
       providesTags: ["InitialSubmission"],
     }),
 
-    updateSubmission: build.mutation({
+    updateInitialSubmission: build.mutation({
       query: ({ id, body }) => ({
         url: `/initial/document/${id}`,
         method: "PATCH",
@@ -42,6 +42,6 @@ export const initialSubmissionApi = api.injectEndpoints({
 
 export const {
   useGetInitialSubmissionsQuery,
-  useUpdateSubmissionMutation,
+  useUpdateInitialSubmissionMutation,
   useGetSubmissionByIdQuery,
 } = initialSubmissionApi;
