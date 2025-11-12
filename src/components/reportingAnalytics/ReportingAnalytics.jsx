@@ -1,25 +1,42 @@
-import React, { useState, useMemo } from "react";
+import { Alert, DatePicker, Select, Spin, Table } from "antd";
+import "antd/dist/reset.css";
 import dayjs from "dayjs";
+import isBetween from "dayjs/plugin/isBetween";
+import { useMemo, useState } from "react";
 import {
-  BarChart,
-  Bar,
-  LineChart,
-  Line,
-  AreaChart,
   Area,
+  AreaChart,
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Legend,
+  Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
   XAxis,
   YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
 } from "recharts";
-import { Table, Select, Button, DatePicker } from "antd";
-import "antd/dist/reset.css";
-import { Filter } from "../../components/common/Svg"; // Import the relevant SVGs
+import { useAnalyticsQuery } from "../../redux/apiSlices/reportSlice";
+
+// enable isBetween plugin for dayjs
+dayjs.extend(isBetween);
 
 const { Option } = Select;
 const { RangePicker } = DatePicker;
+
+// helper: format number with thousand separators and put $ on the right
+function formatCurrencyRight(value) {
+  if (value === null || value === undefined || value === "") return "";
+  const num = Number(value);
+  if (Number.isNaN(num)) return `${value} $`;
+  return `${num.toLocaleString()} $`;
+}
+
+function tooltipFormatter(value, name) {
+  if (name === "revenue") return formatCurrencyRight(value);
+  return value;
+}
 
 const components = {
   header: {
@@ -263,7 +280,11 @@ export default function MonthlyStatsChart() {
   const [selectedRegion, setSelectedRegion] = useState("All Regions");
   const [selectedMetric, setSelectedMetric] = useState("all");
   const [chartType, setChartType] = useState("Bar");
-  const [dateRange, setDateRange] = useState(null);
+  // default to current year (Jan - Dec) so we show this year's data on first load
+  const [dateRange, setDateRange] = useState([
+    dayjs().startOf("year"),
+    dayjs().endOf("year"),
+  ]);
 
   const exportToCSV = () => {
     const headers = [
@@ -302,8 +323,71 @@ export default function MonthlyStatsChart() {
     document.body.removeChild(link);
   };
 
+  // Prepare API params from dateRange
+  const startDate =
+    dateRange && dateRange[0] ? dayjs(dateRange[0]).format("YYYY-MM-DD") : null;
+  const endDate =
+    dateRange && dateRange[1] ? dayjs(dateRange[1]).format("YYYY-MM-DD") : null;
+
+  const {
+    data: analyticsResp,
+    isLoading: analyticsLoading,
+    isError: analyticsError,
+  } = useAnalyticsQuery(
+    { startDate, endDate },
+    { skip: !startDate || !endDate }
+  );
+
+  // Map analyticsResp to apiData shape used by the component
+  const apiData =
+    analyticsResp?.data && Array.isArray(analyticsResp.data)
+      ? analyticsResp.data.map((m) => {
+          // choose year between start and end that places the month inside range; fallback to startDate year
+          const startYear = startDate
+            ? dayjs(startDate).year()
+            : dayjs().year();
+          const endYear = endDate ? dayjs(endDate).year() : startYear;
+          let chosenYear = startYear;
+          for (let y = startYear; y <= endYear; y++) {
+            const candidate = dayjs(`${m.month} ${y}`, "MMM YYYY");
+            if (startDate && endDate) {
+              if (
+                candidate.isBetween(
+                  dayjs(startDate),
+                  dayjs(endDate),
+                  "day",
+                  "[]"
+                )
+              ) {
+                chosenYear = y;
+                break;
+              }
+            }
+          }
+          const dateStr = `${m.month} ${chosenYear}`;
+          return {
+            date: dateStr,
+            category: "API",
+            region: "API",
+            revenue: m.totalRevenue,
+            users: m.totalVerifiedUserCount,
+            submission: m.totalSubmissionCount,
+            _dateObj: dayjs(dateStr, "MMM YYYY"),
+          };
+        })
+      : analyticsResp
+      ? []
+      : null;
+
   const filteredData = useMemo(() => {
-    return data.filter((d) => {
+    // Use API data only. apiData === null -> not fetched yet; [] -> fetched but empty.
+    const sourceRaw = apiData || [];
+    const source = sourceRaw.map((item) => ({
+      ...item,
+      _dateObj: item._dateObj || dayjs(item.date, "MMM YYYY"),
+    }));
+
+    return source.filter((d) => {
       // Category filter
       const categoryMatch =
         selectedCategory === "All Categories" ||
@@ -320,21 +404,27 @@ export default function MonthlyStatsChart() {
       // Date range filter
       let dateRangeMatch = true;
       if (dateRange && dateRange[0] && dateRange[1]) {
-        const itemDate = dayjs(d.date, "MMM YYYY");
+        const itemDate = d._dateObj || dayjs(d.date, "MMM YYYY");
         const startDate = dayjs(dateRange[0]);
         const endDate = dayjs(dateRange[1]);
-        dateRangeMatch = itemDate.isBetween(startDate, endDate, "month", "[]");
+        // compare by day range to include months partially covered
+        dateRangeMatch = itemDate.isBetween(startDate, endDate, "day", "[]");
       }
 
       return categoryMatch && regionMatch && monthYearMatch && dateRangeMatch;
     });
-  }, [selectedCategory, selectedRegion, selectedMonthYear, dateRange]);
+  }, [selectedCategory, selectedRegion, selectedMonthYear, dateRange, apiData]);
 
   const columns = [
     { title: "Date", dataIndex: "date", key: "date" },
     // { title: "Category", dataIndex: "category", key: "category" },
     // { title: "Region", dataIndex: "region", key: "region" },
-    { title: "Revenue", dataIndex: "revenue", key: "revenue" },
+    {
+      title: "Revenue",
+      dataIndex: "revenue",
+      key: "revenue",
+      render: (val) => formatCurrencyRight(val),
+    },
     { title: "Users", dataIndex: "users", key: "users" },
     { title: "Submission", dataIndex: "submission", key: "submission" },
   ];
@@ -350,7 +440,43 @@ export default function MonthlyStatsChart() {
           format="MMM YYYY"
         />
 
-        <Select
+        {/* Loading / empty / error states */}
+        {analyticsLoading && (
+          <div className="ml-4">
+            <Spin />
+          </div>
+        )}
+
+        {!analyticsLoading && analyticsError && (
+          <div className="ml-4" style={{ minWidth: 260 }}>
+            <Alert type="error" message="Failed to load analytics" showIcon />
+          </div>
+        )}
+
+        {!analyticsLoading && apiData === null && (
+          <div className="ml-4" style={{ minWidth: 300 }}>
+            <Alert
+              type="info"
+              message="Select start & end month to load analytics"
+              showIcon
+            />
+          </div>
+        )}
+
+        {!analyticsLoading &&
+          apiData &&
+          Array.isArray(apiData) &&
+          apiData.length === 0 && (
+            <div className="ml-4" style={{ minWidth: 260 }}>
+              <Alert
+                type="info"
+                message="No analytics data for the selected range"
+                showIcon
+              />
+            </div>
+          )}
+
+        {/* <Select
           value={selectedMonthYear}
           className="min-w-[120px] sm:w-[150px]"
           onChange={setSelectedMonthYear}
@@ -408,7 +534,7 @@ export default function MonthlyStatsChart() {
           <Option value="Bar">Bar Chart</Option>
           <Option value="Line">Line Chart</Option>
           <Option value="Area">Area Chart</Option>
-        </Select>
+        </Select> */}
 
         {/* <Button className="bg-primary text-white" onClick={exportToCSV}>Export Report</Button> */}
       </div>
@@ -428,8 +554,12 @@ export default function MonthlyStatsChart() {
             >
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="date" />
-              <YAxis />
-              <Tooltip />
+              {selectedMetric === "revenue" ? (
+                <YAxis tickFormatter={(v) => formatCurrencyRight(v)} />
+              ) : (
+                <YAxis />
+              )}
+              <Tooltip formatter={tooltipFormatter} />
               <Legend />
               {(selectedMetric === "all" || selectedMetric === "revenue") && (
                 <Bar
@@ -467,8 +597,12 @@ export default function MonthlyStatsChart() {
             >
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="date" />
-              <YAxis />
-              <Tooltip />
+              {selectedMetric === "revenue" ? (
+                <YAxis tickFormatter={(v) => formatCurrencyRight(v)} />
+              ) : (
+                <YAxis />
+              )}
+              <Tooltip formatter={tooltipFormatter} />
               <Legend />
               {(selectedMetric === "all" || selectedMetric === "revenue") && (
                 <Line type="monotone" dataKey="revenue" stroke="#7086FD" />
@@ -488,8 +622,12 @@ export default function MonthlyStatsChart() {
             >
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="date" />
-              <YAxis />
-              <Tooltip />
+              {selectedMetric === "revenue" ? (
+                <YAxis tickFormatter={(v) => formatCurrencyRight(v)} />
+              ) : (
+                <YAxis />
+              )}
+              <Tooltip formatter={tooltipFormatter} />
               <Legend />
               {(selectedMetric === "all" || selectedMetric === "revenue") && (
                 <Area

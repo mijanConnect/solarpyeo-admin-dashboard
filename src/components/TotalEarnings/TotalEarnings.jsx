@@ -1,21 +1,7 @@
-import React, { useState } from "react";
-import {
-  Table,
-  DatePicker,
-  Select,
-  Card,
-  Row,
-  Col,
-  Statistic,
-  Tag,
-} from "antd";
-import {
-  DollarOutlined,
-  TrophyOutlined,
-  UserOutlined,
-  ShoppingCartOutlined,
-} from "@ant-design/icons";
+import { DatePicker, Select, Table, Tag } from "antd";
 import moment from "moment";
+import { useMemo, useState } from "react";
+import { useReportEarningsQuery } from "../../redux/apiSlices/earningSlice";
 
 const { Option } = Select;
 const { RangePicker } = DatePicker;
@@ -51,103 +37,72 @@ const components = {
 };
 
 const TotalEarnings = () => {
-  const [dateRange, setDateRange] = useState("February 2025");
-  const [data] = useState([
-    {
-      id: 1,
-      initiatorName: "Dr. John Doe",
-      email: "example@email.com",
-      respondentName: "Dr. John Doe",
-      caseType: "Standard Case",
-      moderatorName: "Dr. John Doe",
-      jurorVote: "3 of 3",
-      revenue: "$10.00",
-      status: "Running",
-    },
-    {
-      id: 2,
-      initiatorName: "Dr. John Doe",
-      email: "example@email.com",
-      respondentName: "Dr. John Doe",
-      caseType: "Standard Case",
-      moderatorName: "Dr. John Doe",
-      jurorVote: "3 of 3",
-      revenue: "$10.00",
-      status: "Running",
-    },
-    {
-      id: 3,
-      initiatorName: "Dr. John Doe",
-      email: "example@email.com",
-      respondentName: "Dr. John Doe",
-      caseType: "Standard Case",
-      moderatorName: "Dr. John Doe",
-      jurorVote: "3 of 3",
-      revenue: "$10.00",
-      status: "Running",
-    },
-    {
-      id: 4,
-      initiatorName: "Dr. John Doe",
-      email: "example@email.com",
-      respondentName: "Dr. John Doe",
-      caseType: "Standard Case",
-      moderatorName: "Dr. John Doe",
-      jurorVote: "3 of 3",
-      revenue: "$10.00",
-      status: "Running",
-    },
-    {
-      id: 5,
-      initiatorName: "Dr. John Doe",
-      email: "example@email.com",
-      respondentName: "Dr. John Doe",
-      caseType: "Standard Case",
-      moderatorName: "Dr. John Doe",
-      jurorVote: "3 of 3",
-      revenue: "$10.00",
-      status: "Running",
-    },
-    {
-      id: 6,
-      initiatorName: "Dr. John Doe",
-      email: "example@email.com",
-      respondentName: "Dr. John Doe",
-      caseType: "Standard Case",
-      moderatorName: "Dr. John Doe",
-      jurorVote: "3 of 3",
-      revenue: "$10.00",
-      status: "Running",
-    },
-    {
-      id: 7,
-      initiatorName: "Dr. John Doe",
-      email: "example@email.com",
-      respondentName: "Dr. John Doe",
-      caseType: "Standard Case",
-      moderatorName: "Dr. John Doe",
-      jurorVote: "3 of 3",
-      revenue: "$10.00",
-      status: "Running",
-    },
-    {
-      id: 8,
-      initiatorName: "Dr. John Doe",
-      email: "example@email.com",
-      respondentName: "Dr. John Doe",
-      caseType: "Standard Case",
-      moderatorName: "Dr. John Doe",
-      jurorVote: "3 of 3",
-      revenue: "$10.00",
-      status: "Running",
-    },
+  // default to current year range
+  const [dateRange, setDateRange] = useState([
+    moment().startOf("year"),
+    moment().endOf("year"),
   ]);
 
-  // Calculate total revenue
-  const totalRevenue = data.reduce((sum, item) => {
-    const amount = parseFloat(item.revenue.replace("$", ""));
-    return sum + amount;
-  }, 0);
+  // query the report earnings endpoint
+  const startDate =
+    dateRange && dateRange[0]
+      ? moment(dateRange[0]).format("YYYY-MM-DD")
+      : null;
+  const endDate =
+    dateRange && dateRange[1]
+      ? moment(dateRange[1]).format("YYYY-MM-DD")
+      : null;
+
+  const {
+    data: earningsResp,
+    isLoading: earningsLoading,
+    isError: earningsError,
+  } = useReportEarningsQuery(
+    { startDate, endDate },
+    { skip: !startDate || !endDate }
+  );
+
+  // map API paymentDetails to table rows
+  const tableData = useMemo(() => {
+    const details = earningsResp?.data?.paymentDetails || [];
+    return details.map((p, idx) => {
+      const submission = p.submissionId || {};
+      const user = p.user || {};
+      const respondentName = [
+        submission.respondentFastName,
+        submission.respondentMiddleName,
+        submission.respondentLastName,
+      ]
+        .filter(Boolean)
+        .join(" ");
+      const jurorVote = Array.isArray(submission.jurorDecisions)
+        ? `${submission.jurorDecisions.length} of ${submission.jurorDecisions.length}`
+        : "0 of 0";
+
+      return {
+        id: p._id || idx + 1,
+        initiatorName: user.name || "-",
+        email: user.email || "-",
+        respondentName: respondentName || "-",
+        caseType: submission.submittionType || "-",
+        moderatorName: "-",
+        jurorVote,
+        revenue: `$${(p.price || 0).toFixed(2)}`,
+        status: p.paymentStatus || submission.status || "-",
+      };
+    });
+  }, [earningsResp]);
+
+  // Calculate total revenue from API rows
+  const totalRevenue = useMemo(() => {
+    return tableData.reduce((sum, item) => {
+      const amount =
+        parseFloat(String(item.revenue).replace(/[^0-9.-]+/g, "")) || 0;
+      return sum + amount;
+    }, 0);
+  }, [tableData]);
+
+  // (totalRevenue computed from API rows via useMemo above)
 
   const columns = [
     {
@@ -303,7 +258,7 @@ const TotalEarnings = () => {
         <Table
           components={components}
           columns={columns}
-          dataSource={data}
+          dataSource={tableData}
           rowKey="id"
           pagination={{
             pageSize: 10,
