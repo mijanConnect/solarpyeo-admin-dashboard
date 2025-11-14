@@ -1,9 +1,7 @@
-import { DatePicker, Select, Table, Tag } from "antd";
+import { Alert, DatePicker, Spin, Table, Tag } from "antd";
 import moment from "moment";
 import { useMemo, useState } from "react";
 import { useReportEarningsQuery } from "../../redux/apiSlices/earningSlice";
-
-const { Option } = Select;
 const { RangePicker } = DatePicker;
 
 const components = {
@@ -37,11 +35,13 @@ const components = {
 };
 
 const TotalEarnings = () => {
-  // default to current year range
+  // default to the current year (show full-year data on first load)
+  // but keep the picker empty initially via `pickerRange`
   const [dateRange, setDateRange] = useState([
     moment().startOf("year"),
     moment().endOf("year"),
   ]);
+  const [pickerRange, setPickerRange] = useState([null, null]);
 
   // query the report earnings endpoint
   const startDate =
@@ -62,6 +62,11 @@ const TotalEarnings = () => {
     { skip: !startDate || !endDate }
   );
 
+  // Pull total earning from API response (API returns data.totalEarning)
+  const totalEarnings = useMemo(() => {
+    return earningsResp?.data?.totalEarning ?? 0;
+  }, [earningsResp]);
+
   // map API paymentDetails to table rows
   const tableData = useMemo(() => {
     const details = earningsResp?.data?.paymentDetails || [];
@@ -75,11 +80,15 @@ const TotalEarnings = () => {
       ]
         .filter(Boolean)
         .join(" ");
-      const jurorVote = Array.isArray(submission.jurorDecisions)
-        ? `${submission.jurorDecisions.length} of ${submission.jurorDecisions.length}`
-        : "0 of 0";
+      const decisions = Array.isArray(submission.jurorDecisions)
+        ? submission.jurorDecisions
+        : [];
+      // If total jurors count is provided use it, otherwise assume equal to decisions length
+      const totalJurors = submission.jurorCount ?? decisions.length;
+      const jurorVote = `${decisions.length} of ${totalJurors}`;
 
       return {
+        serial: idx + 1,
         id: p._id || idx + 1,
         initiatorName: user.name || "-",
         email: user.email || "-",
@@ -107,8 +116,8 @@ const TotalEarnings = () => {
   const columns = [
     {
       title: "SL",
-      dataIndex: "id",
-      key: "id",
+      dataIndex: "serial",
+      key: "serial",
       align: "center",
       width: 60,
     },
@@ -131,17 +140,17 @@ const TotalEarnings = () => {
       align: "center",
     },
     {
-      title: "Case Type",
+      title: "Submission Type",
       dataIndex: "caseType",
       key: "caseType",
       align: "center",
     },
-    {
-      title: "Moderator Name",
-      dataIndex: "moderatorName",
-      key: "moderatorName",
-      align: "center",
-    },
+    // {
+    //   title: "Moderator Name",
+    //   dataIndex: "moderatorName",
+    //   key: "moderatorName",
+    //   align: "center",
+    // },
     {
       title: "Juror Vote",
       dataIndex: "jurorVote",
@@ -230,52 +239,61 @@ const TotalEarnings = () => {
 
       {/* Date Range Filter */}
       <div className="mb-2 flex justify-between items-center">
-        <div className="flex items-center gap-4">
-          {/* <span className="text-sm font-medium">Date Range:</span> */}
-          <Select
-            value={dateRange}
-            onChange={setDateRange}
-            style={{ width: 150 }}
-          >
-            <Option value="February 2025">February 2025</Option>
-            <Option value="January 2025">January 2025</Option>
-            <Option value="December 2024">December 2024</Option>
-            <Option value="November 2024">November 2024</Option>
-          </Select>
-        </div>
+        <RangePicker
+          className="min-w-[200px] sm:w-[250px]"
+          placeholder={["Start Date", "End Date"]}
+          value={pickerRange}
+          onChange={(vals) => {
+            if (!vals) {
+              // clear picker and revert table/query to present year
+              setPickerRange([null, null]);
+              setDateRange([moment().startOf("year"), moment().endOf("year")]);
+              return;
+            }
+            // show selected in picker and normalize to day bounds for API
+            setPickerRange(vals);
+            setDateRange([vals[0].startOf("day"), vals[1].endOf("day")]);
+          }}
+          format="YYYY-MM-DD"
+          allowClear={true}
+        />
         <div className="bg-blue-50 px-4 py-2 rounded-lg border border-blue-200">
           <span className="text-sm text-blue-600 font-medium">
             Total Revenue:{" "}
           </span>
           <span className="text-lg font-bold text-blue-700">
-            ${totalRevenue.toFixed(2)}
+            ${totalEarnings.toFixed(2)}
           </span>
         </div>
       </div>
 
       {/* Earnings Table */}
       <div style={{ overflowX: "auto" }}>
-        <Table
-          components={components}
-          columns={columns}
-          dataSource={tableData}
-          rowKey="id"
-          pagination={{
-            pageSize: 10,
-            // showSizeChanger: true,
-            // showQuickJumper: true,
-            // showTotal: (total, range) =>
-            //   `${range[0]}-${range[1]} of ${total} items`,
-          }}
-          scroll={{ x: "max-content" }}
-          // rowSelection={{
-          //   type: 'checkbox',
-          //   onChange: (selectedRowKeys, selectedRows) => {
-          //     console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows);
-          //   },
-          // }}
-          className="custom-table"
-        />
+        {earningsLoading ? (
+          <div className="w-full flex justify-center py-8">
+            <Spin size="large" />
+          </div>
+        ) : earningsError ? (
+          <Alert
+            message="Failed to load earnings"
+            description={earningsResp?.message || undefined}
+            type="error"
+            showIcon
+            className="my-4"
+          />
+        ) : (
+          <Table
+            components={components}
+            columns={columns}
+            dataSource={tableData}
+            rowKey="id"
+            pagination={{
+              pageSize: 10,
+            }}
+            scroll={{ x: "max-content" }}
+            className="custom-table"
+          />
+        )}
       </div>
     </div>
   );
