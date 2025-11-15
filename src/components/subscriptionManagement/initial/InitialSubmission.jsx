@@ -8,6 +8,7 @@ import {
 import { TableColumns } from "./CulomsTable";
 import { EditModal } from "./GeneratePDFContent ";
 import PDFModal from "./PDFModal";
+import InitialCustomPdfModal from "./CustomPdfModal";
 
 const { Option } = Select;
 
@@ -333,7 +334,13 @@ const InitialSubmission = () => {
       </div>
 
       {/* Modals */}
-      <PDFModal
+      {/* <PDFModal
+        visible={isPDFModalVisible}
+        onCancel={() => setIsPDFModalVisible(false)}
+        selectedRecord={selectedRecord}
+      /> */}
+
+      <InitialCustomPdfModal
         visible={isPDFModalVisible}
         onCancel={() => setIsPDFModalVisible(false)}
         selectedRecord={selectedRecord}

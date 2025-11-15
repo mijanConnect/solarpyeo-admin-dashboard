@@ -8,6 +8,7 @@ import {
 import { TableColumns } from "./CulomsTable";
 // import { AcceptModal, EditModal, JuryModal } from "./GeneratePDFContent ";
 import PDFModal from "./PDFModal";
+import InitialCustomPdfModal from "../initial/CustomPdfModal";
 
 const { Option } = Select;
 
@@ -54,6 +55,7 @@ const RespondentSubmission = () => {
     isLoading,
     isFetching,
     error,
+    refetch,
   } = useGetRespondentSubmissionsQuery(queryParams);
 
   console.log(resp);
@@ -95,6 +97,11 @@ const RespondentSubmission = () => {
     setIsPDFModalVisible(true);
   };
 
+  const showEditModal = (record) => {
+    setSelectedRecord(record?.raw || record);
+    setIsEditModalVisible(true);
+  };
+
   // const showAcceptModal = (record) => {
   //   setSelectedRecord(record?.raw || record);
   //   setIsAcceptModalVisible(true);
@@ -113,6 +120,43 @@ const RespondentSubmission = () => {
   // Action handlers
   const [updateSubmission, { isLoading: isUpdating }] =
     useUpdateRespondentSubmissionMutation();
+
+  // Final review form state
+  const [finalDecisionText, setFinalDecisionText] = useState("");
+  const [finalAdminComments, setFinalAdminComments] = useState("");
+  const [finalResult, setFinalResult] = useState("");
+
+  const handleFinalReviewSubmit = async () => {
+    if (!selectedRecord?._id) return;
+    if (!finalDecisionText.trim()) {
+      message.error("Please provide final decision text");
+      return;
+    }
+
+    try {
+      await updateSubmission({
+        id: selectedRecord._id,
+        body: {
+          status: "FINAL_REVIEW",
+          finalDecisions: [finalDecisionText.trim()],
+          adminComments: finalAdminComments,
+          finalResult: finalResult,
+        },
+      }).unwrap();
+
+      setIsEditModalVisible(false);
+      // reset form
+      setFinalDecisionText("");
+      setFinalAdminComments("");
+      setFinalResult("");
+      message.success("Final review submitted");
+      // refresh list to reflect new status
+      refetch();
+    } catch (err) {
+      console.error(err);
+      message.error("Failed to submit final review");
+    }
+  };
 
   const handleAcceptSubmit = async () => {
     if (!selectedRecord?._id) return;
@@ -140,7 +184,13 @@ const RespondentSubmission = () => {
         try {
           const id = record?.raw?._id || record?.key || record?.id;
           await updateSubmission({ id, body: { status: newStatus } }).unwrap();
-          message.success("Case sent to jury successfully!");
+          message.success("Case updated successfully!");
+          // refresh list so UI shows only Details for finalized statuses
+          try {
+            refetch();
+          } catch (e) {
+            // ignore refetch errors
+          }
         } catch (err) {
           console.error(err);
           message.error("Failed to send to jury");
@@ -225,9 +275,9 @@ const RespondentSubmission = () => {
 
   const actionHandlers = {
     showPDFModal,
+    showEditModal,
     // showAcceptModal,
     // showJuryModal,
-    // showEditModal,
     handleReject,
     directAccept,
   };
@@ -323,11 +373,62 @@ const RespondentSubmission = () => {
       </div>
 
       {/* Modals */}
-      <PDFModal
+      {/* <PDFModal
+        visible={isPDFModalVisible}
+        onCancel={() => setIsPDFModalVisible(false)}
+        selectedRecord={selectedRecord}
+      /> */}
+
+      <InitialCustomPdfModal
         visible={isPDFModalVisible}
         onCancel={() => setIsPDFModalVisible(false)}
         selectedRecord={selectedRecord}
       />
+
+      <Modal
+        title="Final Review"
+        visible={isEditModalVisible}
+        onCancel={() => setIsEditModalVisible(false)}
+        onOk={handleFinalReviewSubmit}
+        okText="Submit Final Review"
+        cancelText="Cancel"
+        width={700}
+      >
+        <div className="space-y-3">
+          <div>
+            <label className="font-medium">Final Decision</label>
+            <Input.TextArea
+              value={finalDecisionText}
+              onChange={(e) => setFinalDecisionText(e.target.value)}
+              placeholder="Enter final decision summary"
+              rows={3}
+            />
+          </div>
+
+          <div>
+            <label className="font-medium">Admin Comments (optional)</label>
+            <Input.TextArea
+              value={finalAdminComments}
+              onChange={(e) => setFinalAdminComments(e.target.value)}
+              placeholder="Any notes"
+              rows={2}
+            />
+          </div>
+
+          <div>
+            <label className="font-medium">Final Result</label>
+            <Select
+              value={finalResult}
+              onChange={(v) => setFinalResult(v)}
+              style={{ width: "100%" }}
+            >
+              <Option value="APPROVED">Approved</Option>
+              <Option value="REJECTED">Rejected</Option>
+              <Option value="COMPLETED">Completed</Option>
+            </Select>
+          </div>
+        </div>
+      </Modal>
 
       {/* <AcceptModal
         visible={isAcceptModalVisible}
