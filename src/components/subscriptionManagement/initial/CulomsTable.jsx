@@ -140,9 +140,9 @@ export const TableColumns = (actionHandlers) => {
               </Tooltip>
             )}
 
-            {/* If APPROVED show Under Jury Review button */}
+            {/* If APPROVED show Juror Review button (disabled indicator) */}
             {ms === "APPROVED" && jurorCount < 3 && (
-              <Tooltip title="Under Jury Review">
+              <Tooltip title="Juror Review">
                 <Button
                   onClick={() => directAccept(record, "UNDER_JURY_REVIEW")}
                   size="medium"
@@ -153,7 +153,7 @@ export const TableColumns = (actionHandlers) => {
                     color: "white",
                   }}
                 >
-                  Under Jury Review
+                  Juror Review
                 </Button>
               </Tooltip>
             )}

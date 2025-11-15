@@ -7,7 +7,6 @@ import {
 } from "../../../redux/apiSlices/respondentSubmission";
 import { TableColumns } from "./CulomsTable";
 // import { AcceptModal, EditModal, JuryModal } from "./GeneratePDFContent ";
-import PDFModal from "./PDFModal";
 import InitialCustomPdfModal from "../initial/CustomPdfModal";
 
 const { Option } = Select;
@@ -38,7 +37,7 @@ const RespondentSubmission = () => {
     // Map display status to API status format
     const statusMap = {
       Pending: "PENDING",
-      "Under Jury Review": "APPROVED",
+      "Juror Review": "APPROVED",
       "Final Review": "FINAL_REVIEW",
       Rejected: "REJECTED",
       Completed: "COMPLETED",
@@ -68,12 +67,25 @@ const RespondentSubmission = () => {
       const email = item.user?.email || "N/A";
       const signature = item?.signature || "N/A";
       const jurorVote = (item.jurorDecisions?.length || 0) + " of 3";
-      const humanStatus = (item.status || "")
-        .toLowerCase()
-        .replace(/_/g, " ")
-        .split(" ")
-        .map((s) => s.charAt(0).toUpperCase() + s.slice(1))
-        .join(" ");
+      const machineStatus = (item.status || "").toString();
+      const jurorCount = item.jurorDecisions?.length || 0;
+      const humanize = (s) =>
+        (s || "")
+          .toLowerCase()
+          .replace(/_/g, " ")
+          .split(" ")
+          .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+          .join(" ");
+      let displayStatus;
+      if (machineStatus === "APPROVED") {
+        displayStatus = jurorCount < 3 ? "Juror Review" : "Final Review";
+      } else if (machineStatus === "FINAL_REVIEW") {
+        displayStatus = "Final Review";
+      } else if (machineStatus === "COMPLETED") {
+        displayStatus = "Completed";
+      } else {
+        displayStatus = humanize(machineStatus);
+      }
 
       return {
         key: item._id,
@@ -82,10 +94,10 @@ const RespondentSubmission = () => {
         email,
         signature,
         jurorVote,
-        status: humanStatus,
+        status: displayStatus,
         // keep original machine status for control logic (e.g., PENDING/APPROVED/REJECTED)
-        machineStatus: (item.status || "").toString(),
-        jurorCount: item.jurorDecisions?.length || 0,
+        machineStatus,
+        jurorCount,
         raw: item,
       };
     });
@@ -137,7 +149,7 @@ const RespondentSubmission = () => {
       await updateSubmission({
         id: selectedRecord._id,
         body: {
-          status: "FINAL_REVIEW",
+          status: "COMPLETED",
           finalDecisions: [finalDecisionText.trim()],
           adminComments: finalAdminComments,
           finalResult: finalResult,
@@ -340,7 +352,7 @@ const RespondentSubmission = () => {
           >
             <Option value="All">All Status</Option>
             <Option value="Pending">Pending</Option>
-            <Option value="Under Jury Review">Under Jury Review</Option>
+            <Option value="Juror Review">Juror Review</Option>
             <Option value="Final Review">Final Review</Option>
             <Option value="Rejected">Rejected</Option>
             <Option value="Completed">Completed</Option>

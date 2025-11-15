@@ -99,6 +99,7 @@ export const getStatusColor = (status) => {
       return "#fa8c16";
     case "Under Review":
     case "Under Jury Review":
+    case "Juror Review":
       return "#1890ff";
     case "Sent to Jury":
       return "#722ed1";
