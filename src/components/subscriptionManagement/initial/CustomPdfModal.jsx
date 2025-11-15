@@ -306,18 +306,16 @@ export default function InitialCustomPdfModal({
           </h3>
           <ol className="list-decimal pl-6">
             <li className="mb-1">
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+              While traveling for work in March, I found intimate photos of
+              RESPONDENT with RESPONDENT’s ex-boyfriend, taken in our bedroom.
+              Metadata shows the images were created March 14th at 11:45 p.m., a
+              night I was in Houston for business. Photos attached as
+              Photos.zip.
             </li>
             <li className="mb-1">
-              Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-            </li>
-            <li className="mb-1">
-              Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris
-              nisi ut aliquip ex ea commodo consequat.
-            </li>
-            <li className="mb-1">
-              Duis aute irure dolor in reprehenderit in voluptate velit esse
-              cillum dolore eu fugiat nulla pariatur.
+              2.Texts between RESPONDENT and RESPONDENT’s ex showed planning for
+              PARTY ONE to “come over after INITIATOR leaves.” Screenshots are
+              uploaded as Exhibit 1.pdf.
             </li>
           </ol>
         </div>
@@ -326,22 +324,16 @@ export default function InitialCustomPdfModal({
           <h3 className="text-center font-bold text-lg mb-2">
             PERJURY DECLARATION
           </h3>
-          <ol className="list-decimal pl-6">
-            <li className="mb-1">
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-            </li>
-            <li className="mb-1">
-              Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-            </li>
-            <li className="mb-1">
-              Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris
-              nisi ut aliquip ex ea commodo consequat.
-            </li>
-            <li className="mb-1">
-              Duis aute irure dolor in reprehenderit in voluptate velit esse
-              cillum dolore eu fugiat nulla pariatur.
-            </li>
-          </ol>
+          <p>
+            I,{" "}
+            <span className="font-semibold">{selectedRecord?.user?.name}</span>,
+            the Initiator in this submission and associated case, hereby declare
+            and affirm in accordance with the laws of the jurisdiction(s)
+            involved,{" "}
+            <span className="font-semibold">UNDER PENALTY OF PERJURY</span>,
+            that the foregoing is true and accurate and a I have good-faith
+            basis to the allegations to the best of my knowledge.
+          </p>
         </div>
 
         {/* Initiator Signature */}
