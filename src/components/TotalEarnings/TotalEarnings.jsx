@@ -102,15 +102,6 @@ const TotalEarnings = () => {
     });
   }, [earningsResp]);
 
-  // Calculate total revenue from API rows
-  const totalRevenue = useMemo(() => {
-    return tableData.reduce((sum, item) => {
-      const amount =
-        parseFloat(String(item.revenue).replace(/[^0-9.-]+/g, "")) || 0;
-      return sum + amount;
-    }, 0);
-  }, [tableData]);
-
   // (totalRevenue computed from API rows via useMemo above)
 
   const columns = [

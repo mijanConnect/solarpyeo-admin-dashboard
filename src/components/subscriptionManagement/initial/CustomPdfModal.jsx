@@ -53,17 +53,34 @@ export default function InitialCustomPdfModal({
                 const clone = content.cloneNode(true);
                 clone.style.boxSizing = "border-box";
                 clone.style.background = "#ffffff";
-                clone.style.padding = "24px"; // slight inner padding to preserve design
+                clone.style.padding = "24px";
                 clone.style.width = getComputedStyle(content).width;
+                clone.style.maxHeight = "none";
+                clone.style.height = "auto";
+                clone.style.overflow = "visible";
 
                 const wrapper = document.createElement("div");
                 wrapper.style.position = "fixed";
                 wrapper.style.left = "-9999px";
+                wrapper.style.overflow = "visible";
                 wrapper.appendChild(clone);
                 document.body.appendChild(wrapper);
 
                 // inline computed styles to ensure exact visual match
                 copyComputedStyles(content, clone);
+
+                // Remove overflow constraints from all elements
+                clone.querySelectorAll("*").forEach((el) => {
+                  const computed = window.getComputedStyle(el);
+                  if (
+                    computed.overflow === "hidden" ||
+                    computed.overflow === "auto" ||
+                    computed.maxHeight !== "none"
+                  ) {
+                    el.style.overflow = "visible";
+                    el.style.maxHeight = "none";
+                  }
+                });
 
                 // Inject a small print stylesheet into the clone so
                 // ordered-list numbers and list text align correctly
@@ -104,13 +121,19 @@ export default function InitialCustomPdfModal({
                 // add an invisible spacer at the bottom of the clone to provide bleed
                 const bleedSpacer = document.createElement("div");
                 bleedSpacer.style.width = "100%";
-                bleedSpacer.style.height = "80px";
+                bleedSpacer.style.height = "250px";
                 bleedSpacer.style.background = "transparent";
                 clone.appendChild(bleedSpacer);
+
+                // Wait a moment for layout to settle
+                await new Promise((resolve) => setTimeout(resolve, 100));
+
                 const canvas = await html2canvas.default(clone, {
                   scale: 2,
                   useCORS: true,
                   backgroundColor: "#ffffff",
+                  windowHeight: clone.scrollHeight,
+                  height: clone.scrollHeight,
                 });
 
                 // cleanup clone
@@ -292,8 +315,17 @@ export default function InitialCustomPdfModal({
             </div>
           </div>
         </div>
-        <h1 className="text-center text-lg font-semibold border-b-2 pb-1 mb-2 border-black">
-          10/12/2025 06:33 AM
+        <h1 className="text-center text-lg font-semibold border-b-2 pb-3 mb-2 border-black">
+          {selectedRecord?.createdAt
+            ? new Date(selectedRecord.createdAt).toLocaleString("en-US", {
+                month: "2-digit",
+                day: "2-digit",
+                year: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+                hour12: true,
+              })
+            : "10/12/2025 06:33 AM"}
         </h1>
 
         <p className="text-center font-bold text-xl mb-2">
@@ -305,18 +337,29 @@ export default function InitialCustomPdfModal({
             ALLEGATION SUMMARY
           </h3>
           <ol className="list-decimal pl-6">
-            <li className="mb-1">
-              While traveling for work in March, I found intimate photos of
-              RESPONDENT with RESPONDENT’s ex-boyfriend, taken in our bedroom.
-              Metadata shows the images were created March 14th at 11:45 p.m., a
-              night I was in Houston for business. Photos attached as
-              Photos.zip.
-            </li>
-            <li className="mb-1">
-              2.Texts between RESPONDENT and RESPONDENT’s ex showed planning for
-              PARTY ONE to “come over after INITIATOR leaves.” Screenshots are
-              uploaded as Exhibit 1.pdf.
-            </li>
+            {selectedRecord?.allegation &&
+            selectedRecord.allegation.length > 0 ? (
+              selectedRecord.allegation.map((item, index) => (
+                <li key={index} className="mb-1">
+                  {item}
+                </li>
+              ))
+            ) : (
+              <>
+                <li className="mb-1">
+                  While traveling for work in March, I found intimate photos of
+                  RESPONDENT with RESPONDENT's ex-boyfriend, taken in our
+                  bedroom. Metadata shows the images were created March 14th at
+                  11:45 p.m., a night I was in Houston for business. Photos
+                  attached as Photos.zip.
+                </li>
+                <li className="mb-1">
+                  2.Texts between RESPONDENT and RESPONDENT's ex showed planning
+                  for PARTY ONE to "come over after INITIATOR leaves."
+                  Screenshots are uploaded as Exhibit 1.pdf.
+                </li>
+              </>
+            )}
           </ol>
         </div>
         {/* PERJURY DECLARATION */}
@@ -339,22 +382,32 @@ export default function InitialCustomPdfModal({
         {/* Initiator Signature */}
         <div className="flex justify-end mt-12">
           <div className="mr-12 flex flex-col items-center">
-            <p className="border-b-2 border-black inline-block">
+            <p className="border-b-2 pb-2 border-black inline-block">
               {selectedRecord?.user?.name}
             </p>
-            <h3 className="font-bold text-lg mb-2">INITIATOR</h3>
+            <h3 className="font-bold text-lg">INITIATOR</h3>
           </div>
         </div>
 
         {/* EVIDENCE ATTACHMENTS */}
-        <div className="mb-4">
+        <div className="mb-4 mt-4">
           <h3 className="text-center font-bold text-lg mb-2">
             EVIDENCE ATTACHMENTS
           </h3>
           <ol className="list-decimal pl-6">
-            <li className="mb-1">Lorem.jpg</li>
-            <li className="mb-1">Ipsum.png</li>
-            <li className="mb-1">Image-1.jpeg</li>
+            {selectedRecord?.evidence && selectedRecord.evidence.length > 0 ? (
+              selectedRecord.evidence.map((item, index) => (
+                <li key={index} className="mb-1">
+                  {item.split("/").pop()}
+                </li>
+              ))
+            ) : (
+              <>
+                <li className="mb-1">Lorem.jpg</li>
+                <li className="mb-1">Ipsum.png</li>
+                <li className="mb-1">Image-1.jpeg</li>
+              </>
+            )}
           </ol>
         </div>
         {/* {selectedRecord && (
