@@ -130,7 +130,7 @@ export const TableColumns = (actionHandlers) => {
             )} */}
 
             {/* Show Accept (send to jury) for PENDING, APPROVED, REVIEW */}
-            {/* {(ms === "PENDING" || ms === "REVIEW") && jurorCount < 3 && (
+            {(ms === "PENDING" || ms === "REVIEW") && jurorCount < 3 && (
               <Tooltip title="Send to Jury">
                 <Button
                   onClick={() => directAccept(record, "APPROVED")}
@@ -141,10 +141,10 @@ export const TableColumns = (actionHandlers) => {
                     color: "white",
                   }}
                 >
-                  Send to Jury
+                  Accept
                 </Button>
               </Tooltip>
-            )} */}
+            )}
 
             {/* If APPROVED show Under Jury Review button */}
             {/* {ms === "APPROVED" && jurorCount < 3 && (
@@ -165,7 +165,7 @@ export const TableColumns = (actionHandlers) => {
             )} */}
 
             {/* Reject Button - only when pending */}
-            {/* {ms === "PENDING" && (
+            {ms === "PENDING" && (
               <Tooltip title="Reject">
                 <Button
                   onClick={() => handleReject(record)}
@@ -179,7 +179,7 @@ export const TableColumns = (actionHandlers) => {
                   Reject
                 </Button>
               </Tooltip>
-            )} */}
+            )}
           </div>
         );
       },
