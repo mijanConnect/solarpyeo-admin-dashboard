@@ -7,6 +7,7 @@ import MisuseSubmission from "./misuse/MisuseSubmission";
 import RespondentSubmission from "./respondent/RespondentSubmission";
 import TechnicalSupportSubmission from "./technicalSupport/technicalSupportSubmission";
 import JurorProgramSubmission from "./enrollJurorProgram/JurorProgramSubmission";
+import IdentityDisputeSubmission from "./identityClaim/IdentityDisputeSubmission";
 
 export default function SubmmissionManagement() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -57,7 +58,10 @@ export default function SubmmissionManagement() {
                 value: "technical_support",
               },
               { label: "Juror Program Submission", value: "juror_program" },
-              { label: "Identity Claim Submission", value: "identity_claim" },
+              {
+                label: "Identity Dispute Submission",
+                value: "identity_dispute",
+              },
               {
                 label: "Recusal & Conflict Submission",
                 value: "recusal_conflict",
@@ -75,6 +79,7 @@ export default function SubmmissionManagement() {
       {selected === "misuse" && <MisuseSubmission />}
       {selected === "technical_support" && <TechnicalSupportSubmission />}
       {selected === "juror_program" && <JurorProgramSubmission />}
+      {selected === "identity_dispute" && <IdentityDisputeSubmission />}
     </div>
   );
 }
