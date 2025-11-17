@@ -36,6 +36,15 @@ export const initialSubmissionApi = api.injectEndpoints({
       }),
       invalidatesTags: ["InitialSubmission"],
     }),
+
+    adminDecisionInitialSubmission: build.mutation({
+      query: ({ id, body }) => ({
+        url: `/initial/submission/${id}`,
+        method: "PATCH",
+        body,
+      }),
+      invalidatesTags: ["InitialSubmission"],
+    }),
   }),
   overrideExisting: false,
 });
@@ -44,4 +53,5 @@ export const {
   useGetInitialSubmissionsQuery,
   useUpdateInitialSubmissionMutation,
   useGetSubmissionByIdQuery,
+  useAdminDecisionInitialSubmissionMutation,
 } = initialSubmissionApi;

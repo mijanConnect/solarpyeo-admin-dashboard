@@ -4,7 +4,10 @@ import { useMemo, useState } from "react";
 import { TableColumns } from "./CulomsTable";
 // import { AcceptModal, EditModal, JuryModal } from "./GeneratePDFContent ";
 import TechnicalSupportDetailModal from "./JurorProgramDetailModal";
-import { useGetJurorProgramSubmissionsQuery, useUpdateJurorProgramSubmissionMutation } from "../../../redux/apiSlices/jurorProgramSubmission";
+import {
+  useGetJurorProgramSubmissionsQuery,
+  useUpdateJurorProgramSubmissionMutation,
+} from "../../../redux/apiSlices/jurorProgramSubmission";
 
 const { Option } = Select;
 

@@ -60,17 +60,9 @@ export const TableColumns = (actionHandlers) => {
         const ms = (record.machineStatus || record.status || "")
           .toString()
           .toUpperCase();
-        const jurorCount = Number(record.jurorCount || 0);
 
-        const id = record?._id;
-
-        // If rejected or finalized, only show Details
-        if (
-          ms === "REJECTED" ||
-          ms === "FINAL_REVIEW" ||
-          ms === "FINALIZED" ||
-          ms === "COMPLETED"
-        ) {
+        // If rejected or completed, only show Details
+        if (ms === "REJECTED" || ms === "APPROVED" || ms === "COMPLETED") {
           return (
             <div className="flex justify-start gap-2">
               <Tooltip title="View PDF">
@@ -86,7 +78,7 @@ export const TableColumns = (actionHandlers) => {
           );
         }
 
-        // If pending, show Details, Final Review and Reject per requirement
+        // If pending, show Details, Accept and Reject buttons
         if (ms === "PENDING") {
           return (
             <div className="flex justify-start gap-2">
@@ -102,11 +94,11 @@ export const TableColumns = (actionHandlers) => {
 
               <Tooltip title="Accept">
                 <Button
-                  onClick={() => directAccept(record, "FINAL_REVIEW")}
+                  onClick={() => directAccept(record, "APPROVED")}
                   size="medium"
                   style={{
-                    backgroundColor: "#13c2c2",
-                    borderColor: "#13c2c2",
+                    backgroundColor: "#52c41a",
+                    borderColor: "#52c41a",
                     color: "white",
                   }}
                 >
@@ -131,9 +123,9 @@ export const TableColumns = (actionHandlers) => {
           );
         }
 
+        // Default fallback
         return (
           <div className="flex justify-start gap-2">
-            {/* PDF View Button - always available */}
             <Tooltip title="View PDF">
               <Button
                 type="primary"
@@ -143,75 +135,6 @@ export const TableColumns = (actionHandlers) => {
                 Details
               </Button>
             </Tooltip>
-
-            {/* If jurorCount >= 3 show Final Review */}
-            {jurorCount >= 3 && (
-              <Tooltip title="Accept">
-                <Button
-                  onClick={() => directAccept(record, "FINAL_REVIEW")}
-                  size="medium"
-                  style={{
-                    backgroundColor: "#13c2c2",
-                    borderColor: "#13c2c2",
-                    color: "white",
-                  }}
-                >
-                  Accept
-                </Button>
-              </Tooltip>
-            )}
-
-            {/* Show Accept (send to jury) for PENDING, APPROVED, REVIEW */}
-            {(ms === "PENDING" || ms === "REVIEW") && jurorCount < 3 && (
-              <Tooltip title="Send to Jury">
-                <Button
-                  onClick={() => directAccept(record, "APPROVED")}
-                  size="medium"
-                  style={{
-                    backgroundColor: "#52c41a",
-                    borderColor: "#52c41a",
-                    color: "white",
-                  }}
-                >
-                  Send to Jury
-                </Button>
-              </Tooltip>
-            )}
-
-            {/* If APPROVED show Under Jury Review button */}
-            {/* {ms === "APPROVED" && jurorCount < 3 && (
-              <Tooltip title="Under Jury Review">
-                <Button
-                  onClick={() => directAccept(record, "UNDER_JURY_REVIEW")}
-                  size="medium"
-                  disabled={true}
-                  style={{
-                    backgroundColor: "#1890ff",
-                    borderColor: "#1890ff",
-                    color: "white",
-                  }}
-                >
-                  Under Jury Review
-                </Button>
-              </Tooltip>
-            )} */}
-
-            {/* Reject Button - only when pending */}
-            {ms === "PENDING" && (
-              <Tooltip title="Reject">
-                <Button
-                  onClick={() => handleReject(record)}
-                  size="medium"
-                  style={{
-                    backgroundColor: "#f5222d",
-                    borderColor: "#f5222d",
-                    color: "white",
-                  }}
-                >
-                  Reject
-                </Button>
-              </Tooltip>
-            )}
           </div>
         );
       },

@@ -2,6 +2,7 @@ import { Input, message, Modal, Select, Table } from "antd";
 import { useMemo, useState } from "react";
 // sampleData removed - using server data via RTK Query
 import {
+  useAdminDecisionInitialSubmissionMutation,
   useGetInitialSubmissionsQuery,
   useUpdateInitialSubmissionMutation,
 } from "../../../redux/apiSlices/initialSubmission";
@@ -30,7 +31,7 @@ const InitialSubmission = () => {
     { name: "limit", value: limit },
   ];
   if (searchText.trim()) {
-    queryParams.push({ name: "fastName", value: searchText.trim() });
+    queryParams.push({ name: "searchTerm", value: searchText.trim() });
   }
 
   if (submissionType && submissionType !== "All") {
@@ -137,6 +138,9 @@ const InitialSubmission = () => {
   const [updateSubmission, { isLoading: isUpdating }] =
     useUpdateInitialSubmissionMutation();
 
+  const [adminDecisionSubmission, { isLoading: isSubmittingDecision }] =
+    useAdminDecisionInitialSubmissionMutation();
+
   const handleAcceptSubmit = async () => {
     if (!selectedRecord?._id) return;
     try {
@@ -208,23 +212,34 @@ const InitialSubmission = () => {
     return true;
   };
 
-  const handleFinalEdit = (decisions, formValues) => {
-    const updatedData = data.map((item) => {
-      if (item.id === selectedRecord.id) {
-        return {
-          ...item,
-          status: "Finalized",
-          finalDecisions: decisions,
-          adminComments: formValues.adminComments,
-          finalResult: formValues.finalResult,
-        };
-      }
-      return item;
-    });
+  const handleFinalEdit = async (decisions, formValues) => {
+    if (!selectedRecord?._id) {
+      message.error("No record selected");
+      return false;
+    }
 
-    setData(updatedData);
-    message.success("Final decision submitted successfully!");
-    return true;
+    if (!decisions || decisions.length === 0) {
+      message.error("Please provide at least one administrative decision");
+      return false;
+    }
+
+    try {
+      const result = await adminDecisionSubmission({
+        id: selectedRecord._id,
+        body: {
+          adminDecisions: decisions,
+        },
+      }).unwrap();
+
+      console.log("Admin decision submitted:", result);
+      setIsEditModalVisible(false);
+      message.success("Final decision submitted successfully!");
+      return true;
+    } catch (err) {
+      console.error("Error submitting admin decision:", err);
+      message.error(err?.data?.message || "Failed to submit final decision");
+      return false;
+    }
   };
 
   const handleReject = (record) => {

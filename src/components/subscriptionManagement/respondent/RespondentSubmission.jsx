@@ -30,17 +30,15 @@ const RespondentSubmission = () => {
     { name: "limit", value: limit },
   ];
   if (searchText.trim()) {
-    queryParams.push({ name: "fastName", value: searchText.trim() });
+    queryParams.push({ name: "searchTerm", value: searchText.trim() });
   }
 
   if (submissionType && submissionType !== "All") {
     // Map display status to API status format
     const statusMap = {
       Pending: "PENDING",
-      "Juror Review": "APPROVED",
-      "Final Review": "FINAL_REVIEW",
+      Approved: "APPROVED",
       Rejected: "REJECTED",
-      Completed: "COMPLETED",
     };
     const apiStatus =
       statusMap[submissionType] ||
@@ -66,9 +64,7 @@ const RespondentSubmission = () => {
       const initiatorName = item.user?.name || "N/A";
       const email = item.user?.email || "N/A";
       const signature = item?.signature || "N/A";
-      const jurorVote = (item.jurorDecisions?.length || 0) + " of 3";
       const machineStatus = (item.status || "").toString();
-      const jurorCount = item.jurorDecisions?.length || 0;
       const humanize = (s) =>
         (s || "")
           .toLowerCase()
@@ -76,16 +72,8 @@ const RespondentSubmission = () => {
           .split(" ")
           .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
           .join(" ");
-      let displayStatus;
-      if (machineStatus === "APPROVED") {
-        displayStatus = jurorCount < 3 ? "Juror Review" : "Final Review";
-      } else if (machineStatus === "FINAL_REVIEW") {
-        displayStatus = "Final Review";
-      } else if (machineStatus === "COMPLETED") {
-        displayStatus = "Completed";
-      } else {
-        displayStatus = humanize(machineStatus);
-      }
+
+      const displayStatus = humanize(machineStatus);
 
       return {
         key: item._id,
@@ -93,11 +81,8 @@ const RespondentSubmission = () => {
         initiatorName,
         email,
         signature,
-        jurorVote,
         status: displayStatus,
-        // keep original machine status for control logic (e.g., PENDING/APPROVED/REJECTED)
         machineStatus,
-        jurorCount,
         raw: item,
       };
     });
@@ -352,10 +337,8 @@ const RespondentSubmission = () => {
           >
             <Option value="All">All Status</Option>
             <Option value="Pending">Pending</Option>
-            <Option value="Juror Review">Juror Review</Option>
-            <Option value="Final Review">Final Review</Option>
+            <Option value="Approved">Approved</Option>
             <Option value="Rejected">Rejected</Option>
-            <Option value="Completed">Completed</Option>
           </Select>
         </div>
       </div>

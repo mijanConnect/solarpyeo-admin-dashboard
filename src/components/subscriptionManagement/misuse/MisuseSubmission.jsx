@@ -30,7 +30,7 @@ const MisuseSubmission = () => {
     { name: "limit", value: limit },
   ];
   if (searchText.trim()) {
-    queryParams.push({ name: "fastName", value: searchText.trim() });
+    queryParams.push({ name: "searchterm", value: searchText.trim() });
   }
 
   if (submissionType && submissionType !== "All") {
