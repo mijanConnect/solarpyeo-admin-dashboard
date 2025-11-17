@@ -6,6 +6,7 @@ import InitialSubmission from "./initial/InitialSubmission";
 import MisuseSubmission from "./misuse/MisuseSubmission";
 import RespondentSubmission from "./respondent/RespondentSubmission";
 import TechnicalSupportSubmission from "./technicalSupport/technicalSupportSubmission";
+import JurorProgramSubmission from "./enrollJurorProgram/JurorProgramSubmission";
 
 export default function SubmmissionManagement() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -73,6 +74,7 @@ export default function SubmmissionManagement() {
       {selected === "appeal" && <AppealSubmission />}
       {selected === "misuse" && <MisuseSubmission />}
       {selected === "technical_support" && <TechnicalSupportSubmission />}
+      {selected === "juror_program" && <JurorProgramSubmission />}
     </div>
   );
 }

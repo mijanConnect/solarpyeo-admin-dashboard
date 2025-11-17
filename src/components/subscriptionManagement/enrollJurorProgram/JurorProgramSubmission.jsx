@@ -3,15 +3,12 @@ import { useMemo, useState } from "react";
 // sampleData removed - using server data via RTK Query
 import { TableColumns } from "./CulomsTable";
 // import { AcceptModal, EditModal, JuryModal } from "./GeneratePDFContent ";
-import {
-  useGetTechnicalSupportSubmissionsQuery,
-  useUpdateTechnicalSupportSubmissionMutation,
-} from "../../../redux/apiSlices/technicalSupportSubmission";
-import TechnicalSupportDetailModal from "./TechnicalSupportDetailModal";
+import TechnicalSupportDetailModal from "./JurorProgramDetailModal";
+import { useGetJurorProgramSubmissionsQuery, useUpdateJurorProgramSubmissionMutation } from "../../../redux/apiSlices/jurorProgramSubmission";
 
 const { Option } = Select;
 
-const TechnicalSupportSubmission = () => {
+const JurorProgramSubmission = () => {
   // local UI state
   const [data, setData] = useState([]);
   const [searchText, setSearchText] = useState("");
@@ -50,10 +47,10 @@ const TechnicalSupportSubmission = () => {
     isFetching,
     error,
     refetch,
-  } = useGetTechnicalSupportSubmissionsQuery(queryParams);
+  } = useGetJurorProgramSubmissionsQuery(queryParams);
 
   const [updateSubmission, { isLoading: isUpdating }] =
-    useUpdateTechnicalSupportSubmissionMutation();
+    useUpdateJurorProgramSubmissionMutation();
 
   console.log(resp);
 
@@ -325,7 +322,7 @@ const TechnicalSupportSubmission = () => {
       {/* Filters */}
       <div className="flex justify-between items-end bg-red-300 p-3 rounded-lg mb-4 mt-4">
         <p className="text-[25px] font-semibold ml-1">
-          Technical Support Submissions
+          Juror Program Submissions
         </p>
         <div className="flex gap-2">
           <Input
@@ -338,7 +335,7 @@ const TechnicalSupportSubmission = () => {
             style={{ width: 350, height: 40 }}
           />
 
-          <Select
+          {/* <Select
             value={submissionType}
             onChange={(val) => {
               setSubmissionType(val);
@@ -349,7 +346,7 @@ const TechnicalSupportSubmission = () => {
             <Option value="All">All Status</Option>
             <Option value="Pending">Pending</Option>
             <Option value="Review">Solved</Option>
-          </Select>
+          </Select> */}
         </div>
       </div>
 
@@ -453,4 +450,4 @@ const TechnicalSupportSubmission = () => {
   );
 };
 
-export default TechnicalSupportSubmission;
+export default JurorProgramSubmission;

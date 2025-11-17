@@ -37,13 +37,13 @@ export const TableColumns = (actionHandlers) => {
     //   key: "jurorVote",
     //   align: "center",
     // },
-    {
-      title: "Status",
-      dataIndex: "status",
-      key: "status",
-      align: "center",
-      render: (status) => <Tag color={getStatusColor(status)}>{status}</Tag>,
-    },
+    // {
+    //   title: "Status",
+    //   dataIndex: "status",
+    //   key: "status",
+    //   align: "center",
+    //   render: (status) => <Tag color={getStatusColor(status)}>{status}</Tag>,
+    // },
     {
       title: "Action",
       key: "action",
