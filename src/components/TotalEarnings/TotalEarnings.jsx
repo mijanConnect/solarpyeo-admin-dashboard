@@ -72,7 +72,8 @@ const TotalEarnings = () => {
     const details = earningsResp?.data?.paymentDetails || [];
     return details.map((p, idx) => {
       const submission = p.submissionId || {};
-      const user = p.user || {};
+      const user = p.submissionId?.user || {};
+      const caseId = submission.caseId;
       const respondentName = [
         submission.respondentFastName,
         submission.respondentMiddleName,
@@ -90,14 +91,14 @@ const TotalEarnings = () => {
       return {
         serial: idx + 1,
         id: p._id || idx + 1,
-        initiatorName: user.name || "-",
-        email: user.email || "-",
-        respondentName: respondentName || "-",
-        caseType: submission.submittionType || "-",
-        moderatorName: "-",
+        initiatorName: user.name || "N/A",
+        email: user.email || "N/A",
+        respondentName: respondentName || "N/A",
+        caseType: submission.submittionType || "N/A",
+        caseId: caseId || "N/A",
         jurorVote,
         revenue: `$${(p.price || 0).toFixed(2)}`,
-        status: p.paymentStatus || submission.status || "-",
+        status: p.paymentStatus || submission.status || "N/A",
       };
     });
   }, [earningsResp]);
@@ -136,12 +137,12 @@ const TotalEarnings = () => {
       key: "caseType",
       align: "center",
     },
-    // {
-    //   title: "Moderator Name",
-    //   dataIndex: "moderatorName",
-    //   key: "moderatorName",
-    //   align: "center",
-    // },
+    {
+      title: "Case ID",
+      dataIndex: "caseId",
+      key: "caseId",
+      align: "center",
+    },
     {
       title: "Juror Vote",
       dataIndex: "jurorVote",
