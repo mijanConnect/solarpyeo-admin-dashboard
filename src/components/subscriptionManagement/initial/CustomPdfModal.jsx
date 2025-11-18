@@ -363,6 +363,62 @@ export default function InitialCustomPdfModal({
             )}
           </ol>
         </div>
+
+        {/* Jury Panel Decisions: */}
+        <div className="mb-4">
+          <h3 className="text-center font-bold text-lg mb-2">
+            JURY PANEL DECISIONS
+          </h3>
+          {selectedRecord?.jurorDecisions &&
+          selectedRecord.jurorDecisions.length > 0 ? (
+            <ul className="pl-6">
+              {selectedRecord.jurorDecisions.map((decision, index) => (
+                <li key={index} className="mb-2">
+                  <p>
+                    <strong>Juror:</strong> {decision.juror?.name || "N/A"}
+                  </p>
+                  <p>
+                    <strong>Action:</strong> {decision.action || "N/A"}
+                  </p>
+                  <p>
+                    <strong>Comment:</strong> {decision.comment || "N/A"}
+                  </p>
+                  <p>
+                    <strong>Voted At:</strong>{" "}
+                    {decision.votedAt
+                      ? new Date(decision.votedAt).toLocaleString("en-US", {
+                          month: "2-digit",
+                          day: "2-digit",
+                          year: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                          hour12: true,
+                        })
+                      : "N/A"}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-center text-gray-500">No jury decisions yet</p>
+          )}
+        </div>
+        {/* Admin Decision */}
+        <div className="mb-4">
+          <h3 className="text-center font-bold text-lg mb-2">ADMIN DECISION</h3>
+          {selectedRecord?.adminDecisions &&
+          selectedRecord.adminDecisions.length > 0 ? (
+            <ol className="list-decimal pl-6">
+              {selectedRecord.adminDecisions.map((decision, index) => (
+                <li key={index} className="mb-1">
+                  {decision}
+                </li>
+              ))}
+            </ol>
+          ) : (
+            <p className="text-center text-gray-500">No admin decision yet</p>
+          )}
+        </div>
         {/* PERJURY DECLARATION */}
         <div className="mb-4">
           <h3 className="text-center font-bold text-lg mb-2">

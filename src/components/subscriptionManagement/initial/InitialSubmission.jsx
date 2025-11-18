@@ -108,6 +108,7 @@ const InitialSubmission = () => {
         // keep original machine status for control logic (e.g., PENDING/APPROVED/REJECTED)
         machineStatus,
         jurorCount,
+        hasAdminDecision: item.adminDecisions && item.adminDecisions.length > 0,
         raw: item,
       };
     });
@@ -146,7 +147,7 @@ const InitialSubmission = () => {
     try {
       await updateSubmission({
         id: selectedRecord._id,
-        body: { status: "APPROVED" },
+        body: { status: "REVIEW" },
       }).unwrap();
       setIsAcceptModalVisible(false);
       message.success("Case sent to jury for review!");
@@ -157,7 +158,7 @@ const InitialSubmission = () => {
   };
 
   // Accept Function with Confirmation
-  const directAccept = (record, newStatus = "APPROVED") => {
+  const directAccept = (record, newStatus = "REVIEW") => {
     Modal.confirm({
       title: "Are you sure?",
       content: "Do you want to accept this submission and send it to jury?",
@@ -229,6 +230,12 @@ const InitialSubmission = () => {
         body: {
           adminDecisions: decisions,
         },
+      }).unwrap();
+
+      // Update status to APPROVED after final decision
+      await updateSubmission({
+        id: selectedRecord._id,
+        body: { status: "APPROVED" },
       }).unwrap();
 
       console.log("Admin decision submitted:", result);

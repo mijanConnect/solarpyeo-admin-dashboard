@@ -106,8 +106,8 @@ export const TableColumns = (actionHandlers) => {
               </Button>
             </Tooltip>
 
-            {/* If jurorCount >= 3 show Final Review */}
-            {jurorCount >= 3 && (
+            {/* Show Final Review if jurorCount >= 3 and no admin decision provided */}
+            {jurorCount >= 3 && !record.hasAdminDecision && (
               <Tooltip title="Final Edit">
                 <Button
                   onClick={() => showEditModal(record)}
@@ -123,11 +123,11 @@ export const TableColumns = (actionHandlers) => {
               </Tooltip>
             )}
 
-            {/* Show Accept (send to jury) for PENDING, APPROVED, REVIEW */}
-            {(ms === "PENDING" || ms === "REVIEW") && jurorCount < 3 && (
+            {/* Show Accept (send to jury) for PENDING only */}
+            {ms === "PENDING" && jurorCount < 3 && (
               <Tooltip title="Send to Jury">
                 <Button
-                  onClick={() => directAccept(record, "APPROVED")}
+                  onClick={() => directAccept(record, "REVIEW")}
                   size="medium"
                   style={{
                     backgroundColor: "#52c41a",
@@ -140,8 +140,8 @@ export const TableColumns = (actionHandlers) => {
               </Tooltip>
             )}
 
-            {/* If APPROVED show Juror Review button (disabled indicator) */}
-            {ms === "APPROVED" && jurorCount < 3 && (
+            {/* If APPROVED or REVIEW show Juror Review button (disabled indicator) */}
+            {(ms === "APPROVED" || ms === "REVIEW") && jurorCount < 3 && (
               <Tooltip title="Juror Review">
                 <Button
                   onClick={() => directAccept(record, "UNDER_JURY_REVIEW")}
