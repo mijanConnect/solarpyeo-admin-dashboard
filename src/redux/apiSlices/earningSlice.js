@@ -14,13 +14,25 @@ const earningSlice = api.injectEndpoints({
       },
     }),
     // report earnings by date range
+    // reportEarnings: builder.query({
+    //   query: ({ startDate, endDate }) => {
+    //     const params = new URLSearchParams();
+    //     if (startDate) params.append("startDate", startDate);
+    //     if (endDate) params.append("endDate", endDate);
+    //     return {
+    //       url: `/report/earning?${params.toString()}`,
+    //       method: "GET",
+    //     };
+    //   },
+    //   transformResponse: (response) => response,
+    // }),
     reportEarnings: builder.query({
       query: ({ startDate, endDate }) => {
         const params = new URLSearchParams();
         if (startDate) params.append("startDate", startDate);
         if (endDate) params.append("endDate", endDate);
         return {
-          url: `/report/earning?${params.toString()}`,
+          url: `/report/earning`,
           method: "GET",
         };
       },
