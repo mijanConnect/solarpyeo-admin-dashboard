@@ -1,4 +1,5 @@
 import { Button, Modal } from "antd";
+import { getImageUrl } from "../../common/imageUrl";
 
 export default function InitialCustomPdfModal({
   visible,
@@ -395,19 +396,20 @@ export default function InitialCustomPdfModal({
             EVIDENCE ATTACHMENTS
           </h3>
           <ol className="list-decimal pl-6">
-            {selectedRecord?.evidence && selectedRecord.evidence.length > 0 ? (
-              selectedRecord.evidence.map((item, index) => (
+            {selectedRecord?.evidence &&
+              selectedRecord.evidence.length > 0 &&
+              selectedRecord.evidence.map((file, index) => (
                 <li key={index} className="mb-1">
-                  {item.split("/").pop()}
+                  <a
+                    href={getImageUrl(file)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 hover:underline"
+                  >
+                    {file.split("/").pop()}
+                  </a>
                 </li>
-              ))
-            ) : (
-              <>
-                <li className="mb-1">Lorem.jpg</li>
-                <li className="mb-1">Ipsum.png</li>
-                <li className="mb-1">Image-1.jpeg</li>
-              </>
-            )}
+              ))}
           </ol>
         </div>
         {/* {selectedRecord && (

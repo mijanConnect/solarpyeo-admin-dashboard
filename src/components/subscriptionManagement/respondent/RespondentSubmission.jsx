@@ -7,7 +7,7 @@ import {
 } from "../../../redux/apiSlices/respondentSubmission";
 import { TableColumns } from "./CulomsTable";
 // import { AcceptModal, EditModal, JuryModal } from "./GeneratePDFContent ";
-import InitialCustomPdfModal from "../initial/CustomPdfModal";
+import RespopndentCustomPdfModal from "../respondent/CustomPdfModal";
 
 const { Option } = Select;
 
@@ -374,7 +374,7 @@ const RespondentSubmission = () => {
         selectedRecord={selectedRecord}
       /> */}
 
-      <InitialCustomPdfModal
+      <RespopndentCustomPdfModal
         visible={isPDFModalVisible}
         onCancel={() => setIsPDFModalVisible(false)}
         selectedRecord={selectedRecord}
