@@ -43,7 +43,7 @@ const UserProfile = () => {
       // name may not be provided by the API; derive a display name from email if needed
       username:
         profile.name ||
-        profile.username ||
+        profile.firstName ||
         (profile.email ? profile.email.split("@")[0] : ""),
       email: profile.email || "",
       contact: profile.phone || profile.contact || "",
@@ -93,7 +93,7 @@ const UserProfile = () => {
     const formData = new FormData();
 
     // Map form fields to backend expected keys
-    if (values.username) formData.append("name", values.username);
+    if (values.username) formData.append("firstName", values.username);
     if (values.contact) formData.append("phone", values.contact);
     if (values.address) formData.append("address", values.address);
     if (values.service) formData.append("service", values.service);
