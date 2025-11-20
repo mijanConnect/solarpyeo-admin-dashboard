@@ -243,7 +243,13 @@ export const TableColumns = (actionHandlers) => {
       dataIndex: "status",
       key: "status",
       align: "center",
-      render: (status) => <Tag color={getStatusColor(status)}>{status}</Tag>,
+      render: (status, record) => {
+        // If backend status is APPROVED, show Completed
+        const backendStatus = record.machineStatus || "";
+        const displayStatus =
+          backendStatus === "APPROVED" ? "Completed" : status;
+        return <Tag color={getStatusColor(displayStatus)}>{displayStatus}</Tag>;
+      },
     },
     {
       title: "Action",

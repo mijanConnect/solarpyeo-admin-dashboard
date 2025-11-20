@@ -109,6 +109,8 @@ export const getStatusColor = (status) => {
       return "#389e0d";
     case "Finalized":
       return "#389e0d";
+    case "Review":
+      return "#1890ff";
     default:
       return "#d9d9d9";
   }
