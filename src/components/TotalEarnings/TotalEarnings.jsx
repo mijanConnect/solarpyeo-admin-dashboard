@@ -91,7 +91,7 @@ const TotalEarnings = () => {
       return {
         serial: idx + 1,
         id: p._id || idx + 1,
-        initiatorName: user.name || "N/A",
+        initiatorName: user.firstName + " " + user.lastName || "N/A",
         email: user.email || "N/A",
         respondentName: respondentName || "N/A",
         caseType: submission.submittionType || "N/A",
