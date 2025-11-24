@@ -441,10 +441,10 @@ const InitialSubmission = () => {
     // Map display status to API status format
     const statusMap = {
       Pending: "PENDING",
-      "Juror Review": "APPROVED",
-      "Final Review": "FINAL_REVIEW",
+      "Juror Review": "REVIEW",
+      "Final Review": "REVIEW",
       Rejected: "REJECTED",
-      Completed: "COMPLETED",
+      Completed: "APPROVED",
     };
     const apiStatus =
       statusMap[submissionType] ||
@@ -479,6 +479,7 @@ const InitialSubmission = () => {
           .filter(Boolean)
           .join(" ") || "N/A";
       const caseType = item.typeOfFiling || item.caseId || "N/A";
+      const caseId = item.caseId || "N/A";
       const jurorVote = (item.jurorDecisions?.length || 0) + " of 3";
       const machineStatus = (item.status || "").toString();
       const jurorCount = item.jurorDecisions?.length || 0;
@@ -507,6 +508,7 @@ const InitialSubmission = () => {
         email,
         respondentName,
         caseType,
+        caseId,
         moderatorName: item.moderatorName || "N/A",
         jurorVote,
         status: displayStatus,

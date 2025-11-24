@@ -221,9 +221,9 @@ export const TableColumns = (actionHandlers) => {
       align: "center",
     },
     {
-      title: "Case Type",
-      dataIndex: "caseType",
-      key: "caseType",
+      title: "Case ID",
+      dataIndex: "caseId",
+      key: "caseId",
       align: "center",
     },
     // {
