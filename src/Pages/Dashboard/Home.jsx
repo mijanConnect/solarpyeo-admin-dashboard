@@ -28,6 +28,25 @@ const Home = () => {
 
   const options2 = ["Today", "Last 7 Days", "Last 30 Days", "This Month"];
 
+  // Map selected option to API range parameter
+  const rangeMap = {
+    Today: "1d",
+    "Last 7 Days": "7d",
+    "Last 30 Days": "30d",
+    "This Month": "1m",
+  };
+
+  const selectedRange = rangeMap[selected] || "7d";
+
+  // Fetch overview statistics with range parameter
+  const queryParams = [{ name: "range", value: selectedRange }];
+
+  const {
+    data: statsResp,
+    isLoading: statsLoading,
+    isError: statsError,
+  } = useStatsQuery(queryParams);
+
   const data = {
     labels: [
       "Jan",
@@ -86,12 +105,6 @@ const Home = () => {
     },
   };
 
-  // Fetch overview statistics
-  const {
-    data: statsResp,
-    isLoading: statsLoading,
-    isError: statsError,
-  } = useStatsQuery();
   const stats = statsResp?.data || {};
   const formatNumber = (n) =>
     typeof n === "number" ? n.toLocaleString() : n || 0;
@@ -143,7 +156,7 @@ const Home = () => {
             <div className="bg-white border border-primary rounded-lg flex items-center justify-center p-4">
               <div className="flex flex-col items-baseline">
                 <h2 className="text-[16px] font-semibold mb-1">
-                  Total Submission 
+                  Total Submission
                 </h2>
                 <h3 className="text-secondary text-[24px] font-semibold flex items-center gap-3">
                   <Sales className="w-[20px] h-[20px] text-secondary" />
