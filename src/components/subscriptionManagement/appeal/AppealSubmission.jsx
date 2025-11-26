@@ -16,7 +16,7 @@ const AppealSubmission = () => {
   const [data, setData] = useState([]);
   const [searchText, setSearchText] = useState("");
   const [submissionType, setSubmissionType] = useState("All");
-  const [page, setPage] = useState(1); 
+  const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
   const [isPDFModalVisible, setIsPDFModalVisible] = useState(false);
   const [isAcceptModalVisible, setIsAcceptModalVisible] = useState(false);
