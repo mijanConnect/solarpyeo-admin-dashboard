@@ -281,7 +281,7 @@ export default function InitialCustomPdfModal({
       <div id="custom-pdf-content">
         {/* Case ID */}
         <h1 className="text-center font-bold text-lg border-b-2 pb-2 mt-4 mb-4 border-black">
-          {selectedRecord?.caseId || "N/A"}
+          {selectedRecord?.submission?.caseId || "N/A"}
         </h1>
         <div className="flex justify-between border-b-2 pb-1 mb-2 border-black">
           {/* Initiator Details */}
@@ -291,11 +291,27 @@ export default function InitialCustomPdfModal({
                 Initiator
               </h2>
               <p className="text-[16px]">
-                <strong>Name:</strong> {selectedRecord?.user?.name || "N/A"}
+                <strong>Name:</strong>{" "}
+                {[
+                  selectedRecord?.user?.firstName,
+                  selectedRecord?.user?.middleName,
+                  selectedRecord?.user?.lastName,
+                ]
+                  .filter(Boolean)
+                  .join(" ") || "N/A"}
               </p>
               <p className="text-[16px]">
                 <strong>DOB:</strong>{" "}
-                {selectedRecord?.user?.dob || "00/00/0000"}
+                {selectedRecord?.user?.birthDate
+                  ? new Date(selectedRecord.user.birthDate).toLocaleDateString(
+                      "en-US",
+                      {
+                        month: "2-digit",
+                        day: "2-digit",
+                        year: "numeric",
+                      }
+                    )
+                  : "N/A"}
               </p>
             </div>
           </div>
@@ -307,11 +323,26 @@ export default function InitialCustomPdfModal({
                 Respondent
               </h2>
               <p className="text-[16px]">
-                <strong>Name:</strong> {selectedRecord?.user?.name || "N/A"}
+                <strong>Name:</strong>{" "}
+                {[
+                  selectedRecord?.submission?.respondentFastName,
+                  selectedRecord?.submission?.respondentMiddleName,
+                  selectedRecord?.submission?.respondentLastName,
+                ]
+                  .filter(Boolean)
+                  .join(" ") || "N/A"}
               </p>
               <p className="text-[16px]">
                 <strong>DOB:</strong>{" "}
-                {selectedRecord?.user?.dob || "00/00/0000"}
+                {selectedRecord?.submission?.respondentDOB
+                  ? new Date(
+                      selectedRecord.submission.respondentDOB
+                    ).toLocaleDateString("en-US", {
+                      month: "2-digit",
+                      day: "2-digit",
+                      year: "numeric",
+                    })
+                  : "N/A"}
               </p>
             </div>
           </div>
@@ -338,27 +369,16 @@ export default function InitialCustomPdfModal({
             ALLEGATION SUMMARY
           </h3>
           <ol className="list-decimal pl-6">
-            {selectedRecord?.allegation &&
-            selectedRecord.allegation.length > 0 ? (
-              selectedRecord.allegation.map((item, index) => (
+            {selectedRecord?.submission?.allegation &&
+            selectedRecord?.submission?.allegation.length > 0 ? (
+              selectedRecord?.submission?.allegation.map((item, index) => (
                 <li key={index} className="mb-1">
                   {item}
                 </li>
               ))
             ) : (
               <>
-                <li className="mb-1">
-                  While traveling for work in March, I found intimate photos of
-                  RESPONDENT with RESPONDENT's ex-boyfriend, taken in our
-                  bedroom. Metadata shows the images were created March 14th at
-                  11:45 p.m., a night I was in Houston for business. Photos
-                  attached as Photos.zip.
-                </li>
-                <li className="mb-1">
-                  2.Texts between RESPONDENT and RESPONDENT's ex showed planning
-                  for PARTY ONE to "come over after INITIATOR leaves."
-                  Screenshots are uploaded as Exhibit 1.pdf.
-                </li>
+                <li className="mb-1">N/A</li>
               </>
             )}
           </ol>
@@ -369,56 +389,63 @@ export default function InitialCustomPdfModal({
           <h3 className="text-center font-bold text-lg mb-2">
             JURY PANEL DECISIONS
           </h3>
-          {selectedRecord?.jurorDecisions &&
-          selectedRecord.jurorDecisions.length > 0 ? (
-            <ul className="pl-6">
-              {selectedRecord.jurorDecisions.map((decision, index) => (
-                <li key={index} className="mb-2">
-                  <p>
-                    <strong>Juror:</strong> {decision.juror?.name || "N/A"}
-                  </p>
-                  <p>
-                    <strong>Action:</strong> {decision.action || "N/A"}
-                  </p>
-                  <p>
-                    <strong>Comment:</strong> {decision.comment || "N/A"}
-                  </p>
-                  <p>
-                    <strong>Voted At:</strong>{" "}
-                    {decision.votedAt
-                      ? new Date(decision.votedAt).toLocaleString("en-US", {
-                          month: "2-digit",
-                          day: "2-digit",
-                          year: "numeric",
-                          hour: "2-digit",
-                          minute: "2-digit",
-                          hour12: true,
-                        })
-                      : "N/A"}
-                  </p>
-                </li>
-              ))}
+          {selectedRecord?.submission?.jurorDecisions &&
+          selectedRecord?.submission?.jurorDecisions.length > 0 ? (
+            <ul className="">
+              {selectedRecord?.submission?.jurorDecisions.map(
+                (decision, index) => (
+                  <li key={index} className="mb-2">
+                    <p>
+                      <strong>Juror:</strong>{" "}
+                      {decision?.juror?.firstName || "N/A"}
+                    </p>
+                    <p>
+                      <strong>Action:</strong> {decision?.action || "N/A"}
+                    </p>
+                    <p>
+                      <strong>Comment:</strong> {decision?.comment || "N/A"}
+                    </p>
+                    <p>
+                      <strong>Voted At:</strong>{" "}
+                      {decision.votedAt
+                        ? new Date(decision.votedAt).toLocaleString("en-US", {
+                            month: "2-digit",
+                            day: "2-digit",
+                            year: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                            hour12: true,
+                          })
+                        : "N/A"}
+                    </p>
+                  </li>
+                )
+              )}
             </ul>
           ) : (
             <p className="text-center text-gray-500">No jury decisions yet</p>
           )}
         </div>
+
         {/* Admin Decision */}
         <div className="mb-4">
           <h3 className="text-center font-bold text-lg mb-2">ADMIN DECISION</h3>
-          {selectedRecord?.adminDecisions &&
-          selectedRecord.adminDecisions.length > 0 ? (
+          {selectedRecord?.submission?.adminDecisions &&
+          selectedRecord?.submission?.adminDecisions.length > 0 ? (
             <ol className="list-decimal pl-6">
-              {selectedRecord.adminDecisions.map((decision, index) => (
-                <li key={index} className="mb-1">
-                  {decision}
-                </li>
-              ))}
+              {selectedRecord.submission?.adminDecisions.map(
+                (decision, index) => (
+                  <li key={index} className="mb-1">
+                    {decision}
+                  </li>
+                )
+              )}
             </ol>
           ) : (
             <p className="text-center text-gray-500">No admin decision yet</p>
           )}
         </div>
+
         {/* PERJURY DECLARATION */}
         <div className="mb-4">
           <h3 className="text-center font-bold text-lg mb-2">
@@ -426,24 +453,22 @@ export default function InitialCustomPdfModal({
           </h3>
           <p>
             I,{" "}
-            <span className="font-semibold">{selectedRecord?.user?.name}</span>,
-            the Initiator in this submission and associated case, hereby declare
-            and affirm in accordance with the laws of the jurisdiction(s)
-            involved,{" "}
+            <span className="font-semibold">
+              {[
+                selectedRecord?.user?.firstName,
+                selectedRecord?.user?.middleName,
+                selectedRecord?.user?.lastName,
+              ]
+                .filter(Boolean)
+                .join(" ") || "N/A"}
+            </span>
+            , the Initiator in this submission and associated case, hereby
+            declare and affirm in accordance with the laws of the
+            jurisdiction(s) involved,{" "}
             <span className="font-semibold">UNDER PENALTY OF PERJURY</span>,
             that the foregoing is true and accurate and a I have good-faith
             basis to the allegations to the best of my knowledge.
           </p>
-        </div>
-
-        {/* Initiator Signature */}
-        <div className="flex justify-end mt-12">
-          <div className="mr-12 flex flex-col items-center">
-            <p className="border-b-2 pb-2 border-black inline-block">
-              {selectedRecord?.user?.name}
-            </p>
-            <h3 className="font-bold text-lg">INITIATOR</h3>
-          </div>
         </div>
 
         {/* EVIDENCE ATTACHMENTS */}
@@ -452,9 +477,9 @@ export default function InitialCustomPdfModal({
             EVIDENCE ATTACHMENTS
           </h3>
           <ol className="list-decimal pl-6">
-            {selectedRecord?.evidence &&
-              selectedRecord.evidence.length > 0 &&
-              selectedRecord.evidence.map((file, index) => (
+            {selectedRecord?.submission?.evidence &&
+              selectedRecord?.submission?.evidence.length > 0 &&
+              selectedRecord?.submission?.evidence.map((file, index) => (
                 <li key={index} className="mb-1">
                   <a
                     href={getImageUrl(file)}
@@ -467,6 +492,22 @@ export default function InitialCustomPdfModal({
                 </li>
               ))}
           </ol>
+        </div>
+
+        {/* Initiator Signature */}
+        <div className="flex justify-end mt-12 mb-8">
+          <div className="mr-12 flex flex-col items-center">
+            <p className="border-b-2 pb-2 border-black inline-block">
+              {[
+                selectedRecord?.user?.firstName,
+                selectedRecord?.user?.middleName,
+                selectedRecord?.user?.lastName,
+              ]
+                .filter(Boolean)
+                .join(" ") || "N/A"}
+            </p>
+            <h3 className="font-bold text-lg">INITIATOR</h3>
+          </div>
         </div>
         {/* {selectedRecord && (
           <div className="mb-4">

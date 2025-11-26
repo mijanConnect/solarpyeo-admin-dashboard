@@ -467,21 +467,24 @@ const InitialSubmission = () => {
     const items = resp?.data || [];
     return items.map((item, index) => {
       const initiatorName =
-        [item.user?.firstName, item.user?.lastName].filter(Boolean).join(" ") ||
-        "N/A";
+        [item.user?.firstName, item?.user?.middleName, item.user?.lastName]
+          .filter(Boolean)
+          .join(" ") || "N/A";
       const email = item.user?.email || "N/A";
       const respondentName =
         [
-          item.respondentFastName,
-          item.respondentMiddleName,
-          item.respondentLastName,
+          item?.submission?.respondentFastName,
+          item?.submission?.respondentMiddleName,
+          item?.submission?.respondentLastName,
         ]
           .filter(Boolean)
           .join(" ") || "N/A";
       const caseType = item.typeOfFiling || item.caseId || "N/A";
-      const caseId = item.caseId || "N/A";
-      const jurorVote = (item.jurorDecisions?.length || 0) + " of 3";
-      const machineStatus = (item.status || "").toString();
+      const caseId = item?.submission?.caseId || "N/A";
+      const jurorVote =
+        (item?.submission?.jurorDecisions?.length || 0) + " of 3";
+      const priority = item.priority || "N/A";
+      const machineStatus = (item?.submission?.status || "").toString();
       const jurorCount = item.jurorDecisions?.length || 0;
       const humanize = (s) =>
         (s || "")
@@ -511,6 +514,7 @@ const InitialSubmission = () => {
         caseId,
         moderatorName: item.moderatorName || "N/A",
         jurorVote,
+        priority,
         status: displayStatus,
         // keep original machine status for control logic (e.g., PENDING/APPROVED/REJECTED)
         machineStatus,

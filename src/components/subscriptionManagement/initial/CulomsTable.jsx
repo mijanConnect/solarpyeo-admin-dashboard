@@ -183,6 +183,7 @@
 
 import { Button, Tag, Tooltip } from "antd";
 import { getStatusColor } from "./sampleData";
+import { render } from "react-dom";
 
 export const TableColumns = (actionHandlers) => {
   const {
@@ -237,6 +238,16 @@ export const TableColumns = (actionHandlers) => {
       dataIndex: "jurorVote",
       key: "jurorVote",
       align: "center",
+    },
+    {
+      title: "Priority",
+      dataIndex: "priority",
+      key: "priority",
+      align: "center",
+      render: (priority) => {
+        const color = priority === "EXPEDITED" ? "red" : "blue";
+        return <Tag color={color}>{priority}</Tag>;
+      },
     },
     {
       title: "Status",
