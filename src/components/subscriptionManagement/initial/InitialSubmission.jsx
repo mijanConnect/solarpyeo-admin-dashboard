@@ -485,7 +485,7 @@ const InitialSubmission = () => {
         (item?.submission?.jurorDecisions?.length || 0) + " of 3";
       const priority = item.priority || "N/A";
       const machineStatus = (item?.submission?.status || "").toString();
-      const jurorCount = item.jurorDecisions?.length || 0;
+      const jurorCount = item?.submission?.jurorDecisions?.length || 0;
       const humanize = (s) =>
         (s || "")
           .toLowerCase()
@@ -516,7 +516,6 @@ const InitialSubmission = () => {
         jurorVote,
         priority,
         status: displayStatus,
-        // keep original machine status for control logic (e.g., PENDING/APPROVED/REJECTED)
         machineStatus,
         jurorCount,
         hasAdminDecision: item.adminDecisions && item.adminDecisions.length > 0,
@@ -577,7 +576,7 @@ const InitialSubmission = () => {
       cancelText: "Cancel",
       async onOk() {
         try {
-          const id = record?.raw?._id || record?.key || record?.id;
+          const id = record?.raw?.submission?._id || record?.key || record?.id;
           await updateSubmission({ id, body: { status: newStatus } }).unwrap();
           message.success("Case sent to jury successfully!");
         } catch (err) {
