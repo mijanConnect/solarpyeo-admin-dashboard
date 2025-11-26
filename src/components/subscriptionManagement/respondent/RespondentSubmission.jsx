@@ -61,7 +61,12 @@ const RespondentSubmission = () => {
   const tableData = useMemo(() => {
     const items = resp?.data || [];
     return items.map((item, index) => {
-      const initiatorName = item.user?.name || "N/A";
+      const initiatorName =
+        item.user?.firstName +
+          " " +
+          item.user?.middleName +
+          " " +
+          item.user?.lastName || "N/A";
       const email = item.user?.email || "N/A";
       const signature = item?.signature || "N/A";
       const machineStatus = (item.status || "").toString();

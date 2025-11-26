@@ -354,18 +354,7 @@ export default function RespondentCustomPdfModal({
               ))
             ) : (
               <>
-                <li className="mb-1">
-                  While traveling for work in March, I found intimate photos of
-                  RESPONDENT with RESPONDENT's ex-boyfriend, taken in our
-                  bedroom. Metadata shows the images were created March 14th at
-                  11:45 p.m., a night I was in Houston for business. Photos
-                  attached as Photos.zip.
-                </li>
-                <li className="mb-1">
-                  2.Texts between RESPONDENT and RESPONDENT's ex showed planning
-                  for PARTY ONE to "come over after INITIATOR leaves."
-                  Screenshots are uploaded as Exhibit 1.pdf.
-                </li>
+                <li className="mb-1">N/A</li>
               </>
             )}
           </ol>
