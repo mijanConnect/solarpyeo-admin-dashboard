@@ -43,7 +43,11 @@ const UserManagement = () => {
     return usersData.map((u) => ({
       key: u?._id || u?.id || Math.random().toString(36).slice(2),
       _id: u?._id || u?.id,
-      name: u?.firstName || "N/A",
+      name:
+        u?.firstName +
+        " " +
+        (u?.middleName ? u.middleName + " " : "") +
+        (u?.lastName || ""),
       email: u?.email || "N/A",
       phone: u?.phone || "N/A",
       profile: u?.profile || null,
