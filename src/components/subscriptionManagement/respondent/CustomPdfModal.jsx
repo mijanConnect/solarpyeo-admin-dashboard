@@ -291,11 +291,25 @@ export default function RespondentCustomPdfModal({
                 Initiator
               </h2>
               <p className="text-[16px]">
-                <strong>Name:</strong> {selectedRecord?.user?.name || "N/A"}
+                <strong>Name:</strong>{" "}
+                {selectedRecord?.user?.firstName +
+                  " " +
+                  selectedRecord?.user?.middleName +
+                  " " +
+                  selectedRecord?.user?.lastName || "N/A"}
               </p>
               <p className="text-[16px]">
                 <strong>DOB:</strong>{" "}
-                {selectedRecord?.user?.dob || "00/00/0000"}
+                {selectedRecord?.user?.birthDate
+                  ? new Date(selectedRecord.user.birthDate).toLocaleDateString(
+                      "en-US",
+                      {
+                        month: "2-digit",
+                        day: "2-digit",
+                        year: "numeric",
+                      }
+                    )
+                  : "N/A"}
               </p>
             </div>
           </div>
@@ -318,7 +332,15 @@ export default function RespondentCustomPdfModal({
               </p>
               <p className="text-[16px]">
                 <strong>DOB:</strong>{" "}
-                {selectedRecord?.user?.dob || "00/00/0000"}
+                {selectedRecord?.submissionId?.respondentDOB
+                  ? new Date(
+                      selectedRecord.submissionId.respondentDOB
+                    ).toLocaleDateString("en-US", {
+                      month: "2-digit",
+                      day: "2-digit",
+                      year: "numeric",
+                    })
+                  : "N/A"}
               </p>
             </div>
           </div>
@@ -387,7 +409,11 @@ export default function RespondentCustomPdfModal({
         <div className="flex justify-end mt-12">
           <div className="mr-12 flex flex-col items-center">
             <p className="border-b-2 pb-2 border-black inline-block">
-              {selectedRecord?.user?.name}
+              {selectedRecord?.user?.firstName +
+                " " +
+                selectedRecord?.user?.middleName +
+                " " +
+                selectedRecord?.user?.lastName || "N/A"}
             </p>
             <h3 className="font-bold text-lg">INITIATOR</h3>
           </div>

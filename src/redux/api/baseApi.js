@@ -1,7 +1,7 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
-// const baseUrl = "http://10.10.7.44:5000/api/v1";
-const baseUrl = "https://api.glassfile.xyz/api/v1";
+const baseUrl = "http://10.10.7.44:5000/api/v1";
+// const baseUrl = "https://api.glassfile.xyz/api/v1";
 
 // Base query with auth headers
 const rawBaseQuery = fetchBaseQuery({
