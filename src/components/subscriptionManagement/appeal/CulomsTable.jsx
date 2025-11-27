@@ -37,12 +37,12 @@ export const TableColumns = (actionHandlers) => {
       key: "reviewOption",
       align: "center",
     },
-    {
-      title: "Jury Vote",
-      dataIndex: "jurorVote",
-      key: "jurorVote",
-      align: "center",
-    },
+    // {
+    //   title: "Jury Vote",
+    //   dataIndex: "jurorVote",
+    //   key: "jurorVote",
+    //   align: "center",
+    // },
     {
       title: "Status",
       dataIndex: "status",

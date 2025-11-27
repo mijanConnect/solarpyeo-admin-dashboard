@@ -7,7 +7,8 @@ import {
 } from "../../../redux/apiSlices/appealSubmission";
 import { TableColumns } from "./CulomsTable";
 // import { AcceptModal, EditModal, JuryModal } from "./GeneratePDFContent ";
-import PDFModal from "./PDFModal";
+import InitialCustomPdfModal from "../initial/CustomPdfModal";
+import AppealCustomPdfModal from "./CustomPdfModal";
 
 const { Option } = Select;
 
@@ -62,7 +63,11 @@ const AppealSubmission = () => {
   const tableData = useMemo(() => {
     const items = resp?.data || [];
     return items.map((item, index) => {
-      const initiatorName = item.user?.name || "N/A";
+      const initiatorName =
+        item.user?.firstName +
+          " " +
+          (item.user?.middleName ? item.user.middleName + " " : "") +
+          (item.user?.lastName || "") || "N/A";
       const email = item.user?.email || "N/A";
       const reviewOption = item.reviewOption || "N/A";
       const jurorVote = (item.jurorDecisions?.length || 0) + " of 3";
@@ -322,8 +327,8 @@ const AppealSubmission = () => {
         </div>
       </div>
 
-      {/* Modals */}
-      <PDFModal
+      {/* Details PDF Modal */}
+      <AppealCustomPdfModal
         visible={isPDFModalVisible}
         onCancel={() => setIsPDFModalVisible(false)}
         selectedRecord={selectedRecord}
